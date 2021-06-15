@@ -14,7 +14,7 @@ Then, import the module into your python file like this:
 
 ```python
 import scratch2py
-s2py = scratch2py.constructer('username', 'password')
+s2py = scratch2py.s2py('username', 'password')
 # Imports s2py and initializes a new s2py object. Enter your Scratch MIT credentials to create a connection with the API.
 ```
 
