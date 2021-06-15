@@ -1,0 +1,1 @@
+from scratch2py.main import s2py
