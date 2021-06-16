@@ -34,7 +34,7 @@ class s2py():
         else:
             self.sessionId = sessionId
 
-    def getStats(id, stat):
+    def getStats(self, id, stat):
         if stat == "loves" or stat == "faves" or stat == "views" or stat == "remixes":
             if stat == "loves":
                 r = requests.get(
@@ -60,7 +60,7 @@ class s2py():
                             data = r.json()
                             return data['stats']['views']
 
-    def getProjects(user):
+    def getProjects(self, user):
         r = requests.get(
             "https://api.scratch.mit.edu/users/"+str(user)+"/projects")
         data = r.json()
@@ -85,7 +85,7 @@ class s2py():
         data = json.dumps(comments)
         return data
 
-    def getStudioComments(id):
+    def getStudioComments(self, id):
         r = requests.get(
             "https://api.scratch.mit.edu/studios/"+str(id)+"/comments")
         data = r.json()
@@ -95,21 +95,21 @@ class s2py():
             comments.append(x)
         return json.dumps(comments)
 
-    def checkUserExists(user):
+    def checkUserExists(self, user):
         return requests.get("https://api.scratch.mit.edu/accounts/checkusername/"+str(user)).json() == {"username": user, "msg": "username exists"}
 
-    def getUserMessagesCount(user):
+    def getUserMessagesCount(self, user):
         return requests.get("https://api.scratch.mit.edu/users/"+str(user)+"/messages/count").json()['count']
 
-    def getUserFollowerCount(user):
+    def getUserFollowerCount(self, user):
         response = requests.get(
             "https://scratchdb.lefty.one/v3/user/info/"+str(user)).json()
         return response['statistics']['followers']
 
-    def getUserStatus(user):
+    def getUserStatus(self, user):
         return requests.get("https://api.scratch.mit.edu/users/"+str(user)).json()['profile']['status']
 
-    def getUserBio(user):
+    def getUserBio(self, user):
         return requests.get("https://api.scratch.mit.edu/users/"+str(user)).json()['profile']['bio']
 
     def setCloudVar(self, variable, value):
@@ -134,7 +134,7 @@ class s2py():
             time.sleep(0.1)
             logging.info('Re-connected to wss://clouddata.scratch.mit.edu')
 
-    def readCloudVar(name, limit=""):
+    def readCloudVar(self, name, limit=""):
         if limit == "":
             limit = 1000
         resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
