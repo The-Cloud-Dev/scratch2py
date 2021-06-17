@@ -14,7 +14,7 @@ Then, import the module into your python file like this:
 
 ```python
 import scratch2py
-s2py = scratch2py.s2py('username', 'password')
+s2py = scratch2py.constructer('username', 'password')
 # Imports s2py and initializes a new s2py object. Enter your Scratch MIT credentials to create a connection with the API.
 ```
 
@@ -40,6 +40,12 @@ Using the module for a studio
 ```python
 s2py.getStudioComments('id')
 # Gets the comments of a studio based on the ID.
+s2py.postStudioComments('studio id','content','parent id','commentee id')
+# Posts a comment on a studio. (See s2py.postProjectComments for param)
+s2py.followStudio('studio id')
+# Follows a studio based on the ID.
+s2py.unfollowStudio('Studio id')
+# Unfollows a studio based on the ID.
 ```
 
 ## User
@@ -59,6 +65,22 @@ s2py.checkUserExists('user')
 # Checks if a user exists. Returns true or false
 s2py.getProjects('user')
 # Gets the titles and project IDs of a user.
+s2py.postProjectComments('Project id','content','parent id(Optional)','commentee id(optional)')
+# Posts a project based on the project id and content. Parent ID is the Id of the comment for replying. Commentee ID is your user ID.
+s2py.love('project id')
+# Loves a project based on the ID.
+s2py.unlove('project id')
+# Unloves a project based on the ID.
+s2py.favorite('project id')
+# Favorites a project based on the ID.
+s2py.unfavorite('project id')
+# Unfavorites a project based on the ID.
+s2py.followUser('name')
+# Follows a user based on the username.
+s2py.unfollowUser('name')
+# Unfollows a user based on the username.
+s2py.toggleCommenting()
+# Toggles comments for your profile.
 ```
 
 ## Cloud
