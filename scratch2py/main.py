@@ -13,7 +13,7 @@ class s2py():
 
     def __init__(self, username, password):
         self.username = username
-        self.password = password
+        self._password = password
         self.headers = {
             "x-csrftoken": "a",
             "x-requested-with": "XMLHttpRequest",
@@ -108,6 +108,19 @@ class s2py():
         data = json.dumps(comments)
         return data
 
+    
+    def postProfileComment(self, user, content, parent_id="", commentee_id=""):
+        data = json.dumps({
+            "commentee_id": commentee_id,
+            "content": content,
+            "parent_id": parent_id,
+        })
+        requests.post(
+            "https://scratch.mit.edu/site-api/comments/user/" +user + "/add/",
+            headers=self.headers,
+            data=data,
+        )
+    
     def postProjectComment(self, pid, content, parent_id="", commentee_id=""):
         self.headers['referer'] = (
             "https://scratch.mit.edu/projects/" + str(pid)
@@ -215,7 +228,6 @@ class s2py():
     def followUser(self, username):
         self.headers['referer'] = "https://scratch.mit.edu/users/" + \
             str(username)+"/"
-        print(self.headers)
         return requests.put(
             "https://scratch.mit.edu/site-api/users/followers/"
             + username
