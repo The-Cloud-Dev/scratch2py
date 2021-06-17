@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="scratch2py", 
     url="https://github.com/The-Cloud-Dev/scratch2py",                    
-    version="0.0.3",                        # The initial release version
+    version="0.0.5",                        # The initial release version
     author="TheCloudDev",
     license="MIT",        
     description="Python to Scratch API connector",
