@@ -6,11 +6,11 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="scratch2py", 
     url="https://github.com/The-Cloud-Dev/scratch2py",                    
-    version="0.0.6",                        # The initial release version
+    version="0.1.0",                        
     author="TheCloudDev",
     license="MIT",        
     description="Python to Scratch API connector",
-    long_description=long_description,      # Long description read from the the readme file
+    long_description=long_description,      
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),    
     classifiers=[
@@ -19,5 +19,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],                                      
     python_requires='>=3.6',                 
-    install_requires=["websocket","websocket-client","wsaccel"]                    
+    install_requires=["websocket-client","wsaccel"]                    
 )
