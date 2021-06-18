@@ -13,7 +13,7 @@ class s2py():
 
     def __init__(self, username, password):
         self.username = username
-        self._password = password
+        self.password = password
         self.headers = {
             "x-csrftoken": "a",
             "x-requested-with": "XMLHttpRequest",
@@ -95,32 +95,28 @@ class s2py():
             titles.append('Title: ' + str(x))
         return titles
 
-    def getProjectComments(id):
+    def getProjectComments(self, id):
         uname = requests.get(
-            "https://api.scratch.mit.edu/projects/"+str(id)).json()['author']['username']
-        data = requests.get("https://api.scratch.mit.edu/users/" +
-                            str(uname)+"/projects/"+str(id)+"/comments").json()
-        comments = []
-        x = ""
-        for i in data:
-            x = i['content']
-            comments.append(x)
-        data = json.dumps(comments)
-        return data
+            "https://api.scratch.mit.edu/projects/"+str(id)).json()
+        if uname != {"code": "NotFound", "message": ""}:
+            uname = uname['author']['username']
+            data = requests.get("https://api.scratch.mit.edu/users/" +
+                                str(uname)+"/projects/"+str(id)+"/comments").json()
+            if data != {"code": "ResourceNotFound", "message": "/users/LT/projects/175/comments does not exist"} and data != {"code": "NotFound", "message": ""}:
+                comments = []
+                x = ""
+                for i in data:
+                    x = i['content']
+                    comments.append(x)
+                data = json.dumps(comments)
+                return data
 
-    
-    def postProfileComment(self, user, content, parent_id="", commentee_id=""):
-        data = json.dumps({
-            "commentee_id": commentee_id,
-            "content": content,
-            "parent_id": parent_id,
-        })
-        requests.post(
-            "https://scratch.mit.edu/site-api/comments/user/" +user + "/add/",
-            headers=self.headers,
-            data=data,
-        )
-    
+    def inviteCurator(self, sid, user):
+        self.headers["referer"] = (
+            "https://scratch.mit.edu/studios/" + str(sid) + "/curators/")
+        requests.put("https://scratch.mit.edu/site-api/users/curators-in/" +
+                     str(sid) + "/invite_curator/?usernames=" + user, headers=self.headers,)
+
     def postProjectComment(self, pid, content, parent_id="", commentee_id=""):
         self.headers['referer'] = (
             "https://scratch.mit.edu/projects/" + str(pid)
@@ -137,7 +133,6 @@ class s2py():
             data=json.dumps(data),
         )
 
-    
     def postStudioComment(self, sid, content, parent_id="", commentee_id=""):
         self.headers['referer'] = (
             "https://scratch.mit.edu/studios/" + str(sid) + "/comments/"
@@ -164,7 +159,11 @@ class s2py():
             + self.username,
             headers=self.headers,
         ).json()
-    
+
+    def addStudioProject(self, sid, pid):
+        self.headers['referer'] = "https://scratch.mit.edu/projects/"+str(pid)
+        return requests.post("https://api.scratch.mit.edu/studios/"+str(sid)+"/project/"+str(pid), headers=self.headers)
+
     def unfavorite(self, id):
         self.headers['referer'] = "https://scratch.mit.edu/projects/"+str(id)
         return requests.delete(
@@ -174,7 +173,7 @@ class s2py():
             + self.username,
             headers=self.headers,
         ).json()
-    
+
     def love(self, id):
         self.headers['referer'] = "https://scratch.mit.edu/projects/"+str(id)
         return requests.post(
@@ -184,7 +183,7 @@ class s2py():
             + self.username,
             headers=self.headers,
         ).json()
-    
+
     def unlove(self, id):
         self.headers['referer'] = "https://scratch.mit.edu/projects/"+str(id)
         return requests.delete(
@@ -194,7 +193,7 @@ class s2py():
             + self.username,
             headers=self.headers,
         ).json()
-    
+
     def followStudio(self, id):
         self.headers['referer'] = "https://scratch.mit.edu/studios/"+str(id)
         return requests.put(
@@ -228,6 +227,7 @@ class s2py():
     def followUser(self, username):
         self.headers['referer'] = "https://scratch.mit.edu/users/" + \
             str(username)+"/"
+        print(self.headers)
         return requests.put(
             "https://scratch.mit.edu/site-api/users/followers/"
             + username
@@ -254,11 +254,27 @@ class s2py():
             headers=self.headers,
         )
 
+    def unfollowPost(self, postid):
+        self.headers['referer'] = "https://scratch.mit.edu/discuss/topic/" + \
+            str(postid)
+        return requests.post("https://scratch.mit.edu/discuss/subscription/topic/"+str(postid)+"/delete/", headers=self.headers)
+
+    def followPost(self, postid):
+        self.headers['referer'] = "https://scratch.mit.edu/discuss/topic/" + \
+            str(postid)
+        return requests.post("https://scratch.mit.edu/discuss/subscription/topic/"+str(postid)+"/add/", headers=self.headers)
+
     def checkUserExists(self, user):
         return requests.get("https://api.scratch.mit.edu/accounts/checkusername/"+str(user)).json() == {"username": user, "msg": "username exists"}
 
     def getUserMessagesCount(self, user):
+        self.headers['referer'] = "https://scratch.mit.edu"
         return requests.get("https://api.scratch.mit.edu/users/"+str(user)+"/messages/count").json()['count']
+
+    def getMessages(self):
+        print("https://api.scratch.mit.edu/users/" +
+              str(self.username)+"messages" + "/")
+        return requests.get("https://api.scratch.mit.edu/users/"+str(self.username)+"/messages" + "/", headers=self.headers).json()
 
     def getUserFollowerCount(self, user):
         response = requests.get(
