@@ -5,12 +5,14 @@ Based of [scratchclient](https://github.com/CubeyTheCube/scratchclient) by [Raih
 
 ## Installation
 
+Use your terminal and run these command to install Scratch2py and websocket
+Then, import the module into your python file like this:
+
 ```bash
 pip install scratch2py
+pip uninstall websocket-client
+pip install websocket-client
 ```
-
-Use your terminal and run this command to install Scratch2py
-Then, import the module into your python file like this:
 
 ```python
 import scratch2py
@@ -48,6 +50,8 @@ s2py.followStudio('studio id')
 # Follows a studio based on the ID.
 s2py.unfollowStudio('Studio id')
 # Unfollows a studio based on the ID.
+s2py.inviteCurator('studio id','username')
+# Invites someone to a studio.
 ```
 
 ## User
@@ -59,7 +63,7 @@ s2py.getUserStatus('user')
 # Gets the 'about me' section of a users.
 s2py.getUserBio('user')
 # Gets the 'What I'm Working On' section of a users profile.
-s2py.getUserFollowersCount('user')
+s2py.getUserFollowerCount('user')
 # Gets the number of followers for a user
 s2py.getUserMessagesCount('user')
 # Gets the number of messages someone has.
@@ -83,6 +87,17 @@ s2py.toggleCommenting()
 # Toggles comments for your profile.
 s2py.postProfileComment('User','content', 'parent_id(optional)','commentee_id(optional)')
 # See s2py.postStudioComment for param info. Enter the username and the content to post a comment on a profile.
+s2py.getMessages()
+# Gets your messages and returns the JSON.
+```
+
+## Forums
+
+```python
+s2py.followPost(postid)
+# Follows a post based on the post ID.
+s2py.unfollowPost(postid)
+# Unfollows a post based on the post ID.
 ```
 
 ## Cloud
