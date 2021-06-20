@@ -1,4 +1,4 @@
- import setuptools
+import setuptools
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="scratch2py", 
     url="https://github.com/The-Cloud-Dev/scratch2py",                    
-    version="0.1.4",                        
+    version="0.1.5",                        
     author="TheCloudDev",
     license="MIT",        
     description="Python to Scratch API connector",
