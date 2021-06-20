@@ -6,7 +6,9 @@ import time
 import logging
 import wsaccel
 import sys
+import ScratchEncoder
 ws = websocket.WebSocket()
+encoder = Encoder()
 
 
 class s2py():
@@ -57,6 +59,12 @@ class s2py():
                 "referer": "",
             }
 
+    def decode(self, text):
+        encoder.decode(text)
+    
+    def encode(self, text):
+        encoder.encode(text)
+    
     def getStats(self, id, stat):
         if stat == "loves" or stat == "faves" or stat == "views" or stat == "remixes":
             if stat == "loves":
@@ -102,7 +110,7 @@ class s2py():
             uname = uname['author']['username']
             data = requests.get("https://api.scratch.mit.edu/users/" +
                                 str(uname)+"/projects/"+str(id)+"/comments").json()
-            if data != {"code": "ResourceNotFound", "message": "/users/LT/projects/175/comments does not exist"} and data != {"code": "NotFound", "message": ""}:
+            if data != {"code": "ResourceNotFound", "message": "/users/"+str(uname)+"/projects/175/comments does not exist"} and data != {"code": "NotFound", "message": ""}:
                 comments = []
                 x = ""
                 for i in data:
