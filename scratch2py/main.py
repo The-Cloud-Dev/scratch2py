@@ -8,7 +8,7 @@ import wsaccel
 import sys
 import ScratchEncoder
 ws = websocket.WebSocket()
-encoder = Encoder()
+encoder = ScratchEncoder.Encoder()
 
 
 class s2py():
@@ -60,10 +60,10 @@ class s2py():
             }
 
     def decode(self, text):
-        encoder.decode(text)
+        return encoder.decode(text)
     
     def encode(self, text):
-        encoder.encode(text)
+        return encoder.encode(text)
     
     def getStats(self, id, stat):
         if stat == "loves" or stat == "faves" or stat == "views" or stat == "remixes":
@@ -114,7 +114,15 @@ class s2py():
                 comments = []
                 x = ""
                 for i in data:
-                    x = i['content']
+                    if "content" in i:
+                        x = i['content']
+                    else:
+                        if "image" in i:
+                            x = i['image']
+                        else:
+                            x = "None"
+                        
+
                     comments.append(x)
                 data = json.dumps(comments)
                 return data
