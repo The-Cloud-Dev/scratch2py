@@ -111,6 +111,10 @@ s2py.setCloudVar('CloudVar', 'Value')
 # Sets a value to a cloud variable. Don't add the cloud symbol.
 s2py.readCloudVar('variable name', 'Limit(optional)')
 # Gets the value of a cloud variable. Limit is when the program should stop looking for the value. Limit is 1000 by default.
+s2py.encode('value')
+# Encodes a value. Scratch version available on my Scratch profile
+s2py.decode('value')
+# Decodes a value. To be used to communicate to and from a Scratch project.
 ```
 
 ## The End
