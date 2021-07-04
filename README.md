@@ -33,8 +33,6 @@ s2py.getStats('id', 'stat')
 # Gets the stats of a project. First input is the project ID, the second one is what stat you want (Loves, faves, views or remixes)
 s2py.getProjectComments('id')
 # Gets the comments of a project based on the project ID. Data returned in JSON.
-s2py.postProjectComments('Project id','content','parent id(Optional)','commentee id(optional)')
-# Posts a project based on the project id and content. Parent ID is the Id of the comment for replying. Commentee ID is your user ID.
 ```
 
 ## Studios
