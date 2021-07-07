@@ -33,6 +33,10 @@ s2py.getStats('id', 'stat')
 # Gets the stats of a project. First input is the project ID, the second one is what stat you want (Loves, faves, views or remixes)
 s2py.getProjectComments('id')
 # Gets the comments of a project based on the project ID. Data returned in JSON.
+s2py.shareProject('pid')
+# Shares a project based on the project ID.
+s2py.unshareProject('pid')
+# Unshares a projec based on the project ID.
 ```
 
 ## Studios
@@ -61,14 +65,10 @@ s2py.getUserStatus('user')
 # Gets the 'about me' section of a users.
 s2py.getUserBio('user')
 # Gets the 'What I'm Working On' section of a users profile.
-s2py.getUserFollowerCount('user')
-# Gets the number of followers for a user
 s2py.getUserMessagesCount('user')
 # Gets the number of messages someone has.
 s2py.checkUserExists('user')
 # Checks if a user exists. Returns true or false
-s2py.getProjects('user')
-# Gets the titles and project IDs of a user.
 s2py.love('project id')
 # Loves a project based on the ID.
 s2py.unlove('project id')
@@ -83,8 +83,6 @@ s2py.unfollowUser('name')
 # Unfollows a user based on the username.
 s2py.toggleCommenting()
 # Toggles comments for your profile.
-s2py.postProfileComment('User','content', 'parent_id(optional)','commentee_id(optional)')
-# See s2py.postStudioComment for param info. Enter the username and the content to post a comment on a profile.
 s2py.getMessages()
 # Gets your messages and returns the JSON.
 ```
