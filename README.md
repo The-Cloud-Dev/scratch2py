@@ -5,14 +5,13 @@ Based of [scratchclient](https://github.com/CubeyTheCube/scratchclient) by [Raih
 
 ## Installation
 
-Use your terminal and run these command to install Scratch2py and websocket
-Then, import the module into your python file like this:
+Run this command in your terminal as ONE command.
 
 ```bash
-pip install scratch2py
-pip uninstall websocket-client
-pip install websocket-client
+pip install scratch2py && pip uninstall websocket-client && pip install websocket-client
 ```
+
+Import scratch2py in like this:
 
 ```python
 import scratch2py
@@ -111,6 +110,10 @@ s2py.encode('value')
 # Encodes a value. Scratch version available on my Scratch profile
 s2py.decode('value')
 # Decodes a value. To be used to communicate to and from a Scratch project.
+s2py.turbowarpConnect('pid')
+# Connects to a turbowarp project
+s2py.setTurbowarpVar('var','value')
+# Changes the value of a turbowarp var.
 ```
 
 ## The End
