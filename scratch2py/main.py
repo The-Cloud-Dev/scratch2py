@@ -4,12 +4,10 @@ import websocket
 import json
 import time
 import logging
-import wsaccel
 import sys
 import ScratchEncoder
 ws = websocket.WebSocket()
 encoder = ScratchEncoder.Encoder()
-
 
 class s2py():
 
