@@ -5,9 +5,11 @@ import json
 import time
 import logging
 import sys
+import json
 import ScratchEncoder
 ws = websocket.WebSocket()
 encoder = ScratchEncoder.Encoder()
+
 
 class s2py():
 
@@ -108,8 +110,8 @@ class s2py():
             uname = uname['author']['username']
             data = requests.get("https://api.scratch.mit.edu/users/" +
                                 str(uname)+"/projects/"+str(id)+"/comments").json()
+            comments = []
             if data != {"code": "ResourceNotFound", "message": "/users/"+str(uname)+"/projects/175/comments does not exist"} and data != {"code": "NotFound", "message": ""}:
-                comments = []
                 x = ""
                 for i in data:
                     if "content" in i:
@@ -119,10 +121,7 @@ class s2py():
                             x = i['image']
                         else:
                             x = "None"
-                        
-
-                    comments.append(x)
-                data = json.dumps(comments)
+                    comments.append(str('Username: '+str(uname))+(str(', Content: ')+str(x)))
                 return data
 
     def inviteCurator(self, sid, user):
@@ -131,22 +130,18 @@ class s2py():
         requests.put("https://scratch.mit.edu/site-api/users/curators-in/" +
                      str(sid) + "/invite_curator/?usernames=" + user, headers=self.headers,)
 
-    def postProjectComment(self, pid, content, parent_id="", commentee_id=""):
-        self.headers['referer'] = (
-            "https://scratch.mit.edu/projects/" + str(pid)
+    def shareProject(self, pid):
+        self.headers["referer"] = (
+            "https://scratch.mit.edu/projects/"+str(pid)
         )
-        data = {
-            "commentee_id": commentee_id,
-            "content": content,
-            "parent_id": parent_id,
-        }
-        return requests.post(
-            "https://api.scratch.mit.edu/proxy/comments/project/"
-            + str(pid) + "/",
-            headers=self.headers,
-            data=json.dumps(data),
+        return requests.put("https://api.scratch.mit.edu/proxy/projects/"+str(pid)+"/share",headers=self.headers)
+    
+    def unshareProject(self, pid):
+        self.headers["referer"] = (
+            "https://scratch.mit.edu/projects/"+str(pid)
         )
-
+        return requests.put("https://api.scratch.mit.edu/proxy/projects/"+str(pid)+"/unshare",headers=self.headers)
+    
     def postStudioComment(self, sid, content, parent_id="", commentee_id=""):
         self.headers['referer'] = (
             "https://scratch.mit.edu/studios/" + str(sid) + "/comments/"
@@ -241,7 +236,6 @@ class s2py():
     def followUser(self, username):
         self.headers['referer'] = "https://scratch.mit.edu/users/" + \
             str(username)+"/"
-        print(self.headers)
         return requests.put(
             "https://scratch.mit.edu/site-api/users/followers/"
             + username
@@ -251,13 +245,16 @@ class s2py():
         ).json()
 
     def unfollowUser(self, username):
+        self.headers['referer'] = "https://scratch.mit.edu/users/" + \
+            str(username)+"/"
         return requests.put(
             "https://scratch.mit.edu/site-api/users/followers/"
-            + username
+            + self.username
             + "/remove/?usernames="
-            + self.username,
+            + username,
             headers=self.headers,
         ).json()
+
 
     def toggleCommenting(self):
         self.headers['referer'] = "https://scratch.mit.edu/users/" + \
@@ -290,11 +287,6 @@ class s2py():
               str(self.username)+"messages" + "/")
         return requests.get("https://api.scratch.mit.edu/users/"+str(self.username)+"/messages" + "/", headers=self.headers).json()
 
-    def getUserFollowerCount(self, user):
-        response = requests.get(
-            "https://scratchdb.lefty.one/v3/user/info/"+str(user)).json()
-        return response['statistics']['followers']
-
     def getUserStatus(self, user):
         return requests.get("https://api.scratch.mit.edu/users/"+str(user)).json()['profile']['status']
 
@@ -322,16 +314,26 @@ class s2py():
             })
             time.sleep(0.1)
             logging.info('Re-connected to wss://clouddata.scratch.mit.edu')
+            logging.info('Re-sending the data')
+            sendPacket({
+                'method': 'set',
+                'name': '☁ ' + variable,
+                'value': str(value),
+                'user': self.username,
+                'project_id': str(PROJECT_ID)
+            })
+            time.sleep(0.1)
 
-    def readCloudVar(self, name, limit=""):
-        if limit == "":
-            limit = 1000
-        resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
+    def readCloudVar(self, name, limit="1000"):
+        try:
+            resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
                             str(PROJECT_ID)+"&limit="+str(limit)+"&offset=0").json()
-        for i in resp:
-            x = i['name']
-            if x == ('☁ ' + str(name)):
-                return i['value']
+            for i in resp:
+                x = i['name']
+                if x == ('☁ ' + str(name)):
+                    return i['value']
+        except:
+            return 'Sorry, there was an error.'
 
     def cloudConnect(self, pid):
         global ws
@@ -344,7 +346,32 @@ class s2py():
             'user': self.username,
             'project_id': str(pid)
         })
+        time.sleep(1.5)
 
+    
+    def turbowarpConnect(self, pid):
+        global ws
+        global PROJECT_ID
+        PROJECT_ID = pid
+        ws.connect('wss://clouddata.turbowarp.org',
+               origin='https://turbowarp.org', enable_multithread=True)
+        sendPacket({
+            'method': 'handshake',
+            'user': self.username,
+            'project_id': str(pid)
+        })
+        time.sleep(1.5)
+
+
+    def setTurbowarpVar(self, variable, value):
+        sendPacket({
+            'method': 'set',
+            'name': '☁ ' + variable,
+            'value': str(value),
+            'user': self.username,
+            'project_id': str(PROJECT_ID)
+        })
+        time.sleep(0.1)
 
 def sendPacket(packet):
     ws.send(json.dumps(packet) + '\n')
