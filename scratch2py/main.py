@@ -1,5 +1,6 @@
 import requests
 import re
+import os
 import websocket
 import json
 import time
@@ -7,13 +8,8 @@ import logging
 import sys
 import json
 import ScratchEncoder
-import os
-try:
-    ws = websocket.WebSocket()
-except TypeError:
-    logging.info('Tye y when prompted to reinstall websocket-client')
-    os.system('pip uninstall websocket-client')
-    os.system('pip install websocket-client')
+        
+ws = websocket.WebSocket()
 encoder = ScratchEncoder.Encoder()
 
 class Scratch2Py():
@@ -126,6 +122,23 @@ class Scratch2Py():
                 'https://api.scratch.mit.edu/projects/'+str(self.id)
             ).json()
             return r
+
+        def fetchAssets(self, type='img'):
+            '''
+            You may have problems with fetching assets since some projects may not have any assets, or are fetched as binary code and not JSON
+            '''
+
+            r = json.loads(requests.get(
+                'https://projects.scratch.mit.edu/'+str(self.id)
+            ).text.encode('utf-8'))
+            
+            assets = []
+            for i in range(len(r['targets'])):
+                if type == 'img':
+                    assets.append('https://cdn.assets.scratch.mit.edu/internalapi/asset/'+str(r['targets'][i]['costumes'][0]['md5ext'])+'/get')
+                elif type == 'snd':
+                    assets.append('https://cdn.assets.scratch.mit.edu/internalapi/asset/'+str(r['targets'][i]['sounds'][0]['md5ext'])+'/get')
+            return assets
 
     class studioSession:
         def __init__(self, sid):
