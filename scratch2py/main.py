@@ -7,15 +7,8 @@ import logging
 import sys
 import json
 import ScratchEncoder
-
-# If you see a huge section that has been commented out, it's because the websocket thing below is broken.
-# You would get this error:
-# TypeError: __init__() missing 3 required positional arguments: 'environ', 'socket', and 'rfile'
-
-'''
-Missing args?         v
+        
 ws = websocket.WebSocket()
-'''
 encoder = ScratchEncoder.Encoder()
 
 class Scratch2Py():
@@ -150,7 +143,7 @@ class Scratch2Py():
             self.headers['referer'] = "https://scratch.mit.edu/projects/"+str(pid)
             return requests.post("https://api.scratch.mit.edu/studios/"+str(self.sid)+"/project/"+str(pid), headers=self.headers)
 
-        def postStudioComment(self, content, parent_id="", commentee_id=""):
+        def postComment(self, content, parent_id="", commentee_id=""):
             self.headers['referer'] = (
                 "https://scratch.mit.edu/studios/" + str(self.sid) + "/comments/"
             )
@@ -167,7 +160,7 @@ class Scratch2Py():
                 data=json.dumps(data),
             )
 
-        def getStudioComments(self):
+        def getComments(self):
             r = requests.get(
                 "https://api.scratch.mit.edu/studios/"+str(self.sid)+"/comments")
             data = r.json()
@@ -177,7 +170,7 @@ class Scratch2Py():
                 comments.append(x)
             return json.dumps(comments)
 
-        def followStudio(self):
+        def follow(self):
             self.headers['referer'] = "https://scratch.mit.edu/studios/"+str(self.sid)
             return requests.put(
                 "https://scratch.mit.edu/site-api/users/bookmarkers/"
@@ -187,7 +180,7 @@ class Scratch2Py():
                 headers=self.headers,
             ).json()
 
-        def unfollowStudio(self):
+        def unfollow(self):
             self.headers['referer'] = "https://scratch.mit.edu/studios/"+str(self.sid)
             return requests.put(
                 "https://scratch.mit.edu/site-api/users/bookmarkers/"
@@ -208,13 +201,13 @@ class Scratch2Py():
             }
             self.pid = pid
 
-        def shareProject(self):
+        def share(self):
             self.headers["referer"] = (
                 "https://scratch.mit.edu/projects/"+str(self.pid)
             )
             return requests.put("https://api.scratch.mit.edu/proxy/projects/"+str(self.pid)+"/share",headers=self.headers)
         
-        def unshareProject(self):
+        def unshare(self):
             self.headers["referer"] = (
                 "https://scratch.mit.edu/projects/"+str(self.pid)
             )
@@ -344,70 +337,65 @@ class Scratch2Py():
             return titles
 
     def setCloudVar(self, variable, value):
-        try:
-            sendPacket({
-                'method': 'set',
-                'name': '☁ ' + variable,
-                'value': str(value),
-                'user': self.username,
-                'project_id': str(PROJECT_ID)
-            })
-            time.sleep(0.1)
-        except BrokenPipeError:
-            logging.error('Broken Pipe Error. Connection Lost.')
-            '''
+            try:
+                sendPacket({
+                    'method': 'set',
+                    'name': '☁ ' + variable,
+                    'value': str(value),
+                    'user': self.username,
+                    'project_id': str(PROJECT_ID)
+                })
+                time.sleep(0.1)
+            except BrokenPipeError:
+                logging.error('Broken Pipe Error. Connection Lost.')
+                ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+self.sessionId+';',
+                        origin='https://scratch.mit.edu', enable_multithread=True)
+                sendPacket({
+                    'method': 'handshake',
+                    'user': self.username,
+                    'project_id': str(PROJECT_ID)
+                })
+                time.sleep(0.1)
+                logging.info('Re-connected to wss://clouddata.scratch.mit.edu')
+                logging.info('Re-sending the data')
+                sendPacket({
+                    'method': 'set',
+                    'name': '☁ ' + variable,
+                    'value': str(value),
+                    'user': self.username,
+                    'project_id': str(PROJECT_ID)
+                })
+                time.sleep(0.1)
+
+    def readCloudVar(self, name, limit="1000"):
+            try:
+                resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
+                                str(PROJECT_ID)+"&limit="+str(limit)+"&offset=0").json()
+                for i in resp:
+                    x = i['name']
+                    if x == ('☁ ' + str(name)):
+                        return i['value']
+            except:
+                return 'Sorry, there was an error.'
+
+    def cloudConnect(self, pid):
+            global ws
+            global PROJECT_ID
+            PROJECT_ID = pid
             ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+self.sessionId+';',
-                       origin='https://scratch.mit.edu', enable_multithread=True)
+                    origin='https://scratch.mit.edu', enable_multithread=True)
             sendPacket({
                 'method': 'handshake',
                 'user': self.username,
-                'project_id': str(PROJECT_ID)
+                'project_id': str(pid)
             })
-            time.sleep(0.1)
-            logging.info('Re-connected to wss://clouddata.scratch.mit.edu')
-            logging.info('Re-sending the data')
-            sendPacket({
-                'method': 'set',
-                'name': '☁ ' + variable,
-                'value': str(value),
-                'user': self.username,
-                'project_id': str(PROJECT_ID)
-            })
-            time.sleep(0.1)
-            '''
-
-    def readCloudVar(self, name, limit="1000"):
-        try:
-            resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
-                            str(PROJECT_ID)+"&limit="+str(limit)+"&offset=0").json()
-            for i in resp:
-                x = i['name']
-                if x == ('☁ ' + str(name)):
-                    return i['value']
-        except:
-            return 'Sorry, there was an error.'
-
-    def cloudConnect(self, pid):
-        global ws
-        global PROJECT_ID
-        PROJECT_ID = pid
-        '''
-        ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+self.sessionId+';',
-                   origin='https://scratch.mit.edu', enable_multithread=True)
-        sendPacket({
-            'method': 'handshake',
-            'user': self.username,
-            'project_id': str(pid)
-        })
-        time.sleep(1.5)
-        '''
+            time.sleep(1.5)
 
     
     def turbowarpConnect(self, pid):
         global ws
         global PROJECT_ID
         PROJECT_ID = pid
-        '''
         ws.connect('wss://clouddata.turbowarp.org',
                origin='https://turbowarp.org', enable_multithread=True)
         sendPacket({
@@ -416,7 +404,6 @@ class Scratch2Py():
             'project_id': str(pid)
         })
         time.sleep(1.5)
-        '''
 
 
     def setTurbowarpVar(self, variable, value):
@@ -430,6 +417,4 @@ class Scratch2Py():
         time.sleep(0.1)
 
 def sendPacket(packet):
-    '''
     ws.send(json.dumps(packet) + '\n')
-    '''
