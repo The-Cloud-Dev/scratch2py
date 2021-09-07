@@ -8,8 +8,13 @@ import logging
 import sys
 import json
 import ScratchEncoder
-        
-ws = websocket.WebSocket()
+import os
+try:
+    ws = websocket.WebSocket()
+except TypeError:
+    logging.info('Tye y when prompted to reinstall websocket-client')
+    os.system('pip uninstall websocket-client')
+    os.system('pip install websocket-client')
 encoder = ScratchEncoder.Encoder()
 
 class Scratch2Py():
