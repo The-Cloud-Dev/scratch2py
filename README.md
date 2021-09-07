@@ -64,7 +64,7 @@ project.getComments()
 project.getInfo()
 ```
 
-## projectSession
+## projectSession class
 ```
 project = s2py.projectSession('id')
 
@@ -75,6 +75,9 @@ project.unfavorite()
 project.love()
 project.unlove()
 ```
+
+## Cloud stuff?
+Still there. It is in the main `s2py` class.
 
 ## The End
 
