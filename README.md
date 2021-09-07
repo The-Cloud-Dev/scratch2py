@@ -8,7 +8,7 @@ Based of [scratchclient](https://github.com/CubeyTheCube/scratchclient) by [Raih
 Run this command in your terminal as ONE command.
 
 ```bash
-pip install scratch2py && pip uninstall websocket-client & pip install scratch2py
+pip install scratch2py && pip uninstall websocket-client & pip install websocket-client
 ```
 
 ## Usage
