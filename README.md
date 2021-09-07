@@ -24,14 +24,18 @@ s2py = scratch2py.Scratch2Py('username', 'password')
 ## user class
 ```python
 user = s2py.user('username')
-
 user.exists()
+# Checks if a user exists. Returns true or false
 user.getMessagesCount()
+# Gets the number of messages someone has.
 user.getMessages()
-user.getMessages()
+# Gets your messages and returns the JSON.
 user.getStatus()
+# Gets the 'about me' section of a users.
 user.getBio()
+# Gets the 'What I'm Working On' section of a users profile.
 user.getProjects()
+# Gets the projects that a user has.
 ```
 
 ## userSession class
@@ -39,8 +43,11 @@ user.getProjects()
 user = s2py.userSession('username')
 
 user.followUser('otheruser')
+# Follows a user
 user.unfollowUser('thatotheruser')
+# Unfollows a user
 user.toggleCommenting()
+# Toggles commenting on your profile (On/Off)
 ```
 
 ## studioSession class
@@ -48,11 +55,17 @@ user.toggleCommenting()
 studio = s2py.studioSession('sid')
 
 studio.inviteCurator('person')
+# Invites a curator to a studio
 studio.addStudioProject('pid')
-studio.postComment('so cool', 'parentid', 'commentee_id')
+# Adds a project to a studio
+studio.postComment('Text', 'parentid', 'commentee_id')
+
 studio.getComments()
+# Gets the comments from a studio
 studio.follow()
+# Follows a studio
 studio.unfollow()
+# Unfollows a studio
 ```
 
 ## project class
@@ -60,8 +73,11 @@ studio.unfollow()
 project = s2py.project('id')
 
 project.getStats('loves/faves/remixes/views')
+# Gets the stats of a project
 project.getComments()
+# Gets the comments of a project
 project.getInfo()
+# Gets the info of a project
 ```
 
 ## projectSession class
