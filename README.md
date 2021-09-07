@@ -21,11 +21,7 @@ s2py = scratch2py.Scratch2Py('username', 'password')
 # Imports s2py and initializes a new s2py object. Enter your Scratch MIT credentials to create a connection with the API.
 ```
 
-## Projects
-
-Using the module for projects
-
-### user class
+## user class
 ```python
 user = s2py.user('username')
 
@@ -38,7 +34,7 @@ user.getBio()
 user.getProjects()
 ```
 
-### userSession class
+## userSession class
 ```python
 user = s2py.userSession('username')
 
@@ -47,7 +43,7 @@ user.unfollowUser('thatotheruser')
 user.toggleCommenting()
 ```
 
-### studioSession class
+## studioSession class
 ```python
 studio = s2py.studioSession('sid')
 
@@ -59,7 +55,7 @@ studio.follow()
 studio.unfollow()
 ```
 
-### project class
+## project class
 ```python
 project = s2py.project('id')
 
@@ -68,7 +64,7 @@ project.getComments()
 project.getInfo()
 ```
 
-### projectSession
+## projectSession
 ```
 project = s2py.projectSession('id')
 
