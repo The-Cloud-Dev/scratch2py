@@ -16,6 +16,16 @@ except TypeError:
     os.system('pip uninstall websocket-client')
     os.system('pip install websocket-client')
 encoder = ScratchEncoder.Encoder()
+try:
+    import ScratchEncoder
+    import websocket
+except ModuleNotFoundError as e:
+    logging.info(e+'; Installing needed modules...')
+    os.chdir(os.getcwd())
+    os.system('pip install -r requirements.txt')
+
+ws = websocket.WebSocket()
+encoder = ScratchEncoder.Encoder()
 
 class Scratch2Py():
     def __init__(self, username, password):
@@ -361,6 +371,50 @@ class Scratch2Py():
 
     class cloud:
         def __init__(self, pid):
+
+    def setCloudVar(self, variable, value):
+            try:
+                sendPacket({
+                    'method': 'set',
+                    'name': '☁ ' + variable,
+                    'value': str(value),
+                    'user': self.username,
+                    'project_id': str(PROJECT_ID)
+                })
+                time.sleep(0.1)
+            except BrokenPipeError:
+                logging.error('Broken Pipe Error. Connection Lost.')
+                ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+self.sessionId+';',
+                        origin='https://scratch.mit.edu', enable_multithread=True)
+                sendPacket({
+                    'method': 'handshake',
+                    'user': self.username,
+                    'project_id': str(PROJECT_ID)
+                })
+                time.sleep(0.1)
+                logging.info('Re-connected to wss://clouddata.scratch.mit.edu')
+                logging.info('Re-sending the data')
+                sendPacket({
+                    'method': 'set',
+                    'name': '☁ ' + variable,
+                    'value': str(value),
+                    'user': self.username,
+                    'project_id': str(PROJECT_ID)
+                })
+                time.sleep(0.1)
+
+    def readCloudVar(self, name, limit="1000"):
+            try:
+                resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
+                                str(PROJECT_ID)+"&limit="+str(limit)+"&offset=0").json()
+                for i in resp:
+                    x = i['name']
+                    if x == ('☁ ' + str(name)):
+                        return i['value']
+            except:
+                return 'Sorry, there was an error.'
+
+    def cloudConnect(self, pid):
             global ws
             global PROJECT_ID
             PROJECT_ID = pid
@@ -372,6 +426,7 @@ class Scratch2Py():
                 'project_id': str(pid)
             })
             time.sleep(1.5)
+
 
 
         def setCloudVar(self, variable, value):
@@ -415,6 +470,7 @@ class Scratch2Py():
                             return i['value']
                 except:
                     return 'Sorry, there was an error.'
+
 
 
 
