@@ -1,20 +1,21 @@
 import requests
 import re
 import os
-import websocket
 import json
 import time
 import logging
 import sys
 import json
-import ScratchEncoder
-import os
+
 try:
-    ws = websocket.WebSocket()
-except TypeError:
-    logging.info('Tye y when prompted to reinstall websocket-client')
-    os.system('pip uninstall websocket-client')
-    os.system('pip install websocket-client')
+    import ScratchEncoder
+    import websocket
+except ModuleNotFoundError as e:
+    logging.info(e+'; Installing needed modules...')
+    os.chdir(os.getcwd())
+    os.system('pip install -r requirements.txt')
+
+ws = websocket.WebSocket()
 encoder = ScratchEncoder.Encoder()
 
 class Scratch2Py():
