@@ -1,12 +1,21 @@
 import requests
 import re
 import os
+import websocket
 import json
 import time
 import logging
 import sys
 import json
-
+import ScratchEncoder
+import os
+try:
+    ws = websocket.WebSocket()
+except TypeError:
+    logging.info('Tye y when prompted to reinstall websocket-client')
+    os.system('pip uninstall websocket-client')
+    os.system('pip install websocket-client')
+encoder = ScratchEncoder.Encoder()
 try:
     import ScratchEncoder
     import websocket
@@ -360,6 +369,9 @@ class Scratch2Py():
                 titles.append('Title: ' + str(x))
             return titles
 
+    class cloud:
+        def __init__(self, pid):
+
     def setCloudVar(self, variable, value):
             try:
                 sendPacket({
@@ -414,6 +426,53 @@ class Scratch2Py():
                 'project_id': str(pid)
             })
             time.sleep(1.5)
+
+
+
+        def setCloudVar(self, variable, value):
+                try:
+                    sendPacket({
+                        'method': 'set',
+                        'name': '☁ ' + variable,
+                        'value': str(value),
+                        'user': self.username,
+                        'project_id': str(PROJECT_ID)
+                    })
+                    time.sleep(0.1)
+                except BrokenPipeError:
+                    logging.error('Broken Pipe Error. Connection Lost.')
+                    ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+self.sessionId+';',
+                            origin='https://scratch.mit.edu', enable_multithread=True)
+                    sendPacket({
+                        'method': 'handshake',
+                        'user': self.username,
+                        'project_id': str(PROJECT_ID)
+                    })
+                    time.sleep(0.1)
+                    logging.info('Re-connected to wss://clouddata.scratch.mit.edu')
+                    logging.info('Re-sending the data')
+                    sendPacket({
+                        'method': 'set',
+                        'name': '☁ ' + variable,
+                        'value': str(value),
+                        'user': self.username,
+                        'project_id': str(PROJECT_ID)
+                    })
+                    time.sleep(0.1)
+
+        def readCloudVar(self, name, limit="1000"):
+                try:
+                    resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
+                                    str(PROJECT_ID)+"&limit="+str(limit)+"&offset=0").json()
+                    for i in resp:
+                        x = i['name']
+                        if x == ('☁ ' + str(name)):
+                            return i['value']
+                except:
+                    return 'Sorry, there was an error.'
+
+
+
 
     
     def turbowarpConnect(self, pid):
