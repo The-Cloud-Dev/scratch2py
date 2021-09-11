@@ -371,39 +371,39 @@ class Scratch2Py():
 
     class cloud:
         def __init__(self, pid):
-
-    def setCloudVar(self, variable, value):
+            PROJECT_ID = pid
+        def setCloudVar(self, variable, value):
             try:
-                sendPacket({
+                ws.send(json.dumps({
                     'method': 'set',
                     'name': '☁ ' + variable,
                     'value': str(value),
                     'user': self.username,
                     'project_id': str(PROJECT_ID)
-                })
+                }) + '\n')
                 time.sleep(0.1)
             except BrokenPipeError:
                 logging.error('Broken Pipe Error. Connection Lost.')
                 ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+self.sessionId+';',
                         origin='https://scratch.mit.edu', enable_multithread=True)
-                sendPacket({
+                ws.send(json.dumps({
                     'method': 'handshake',
                     'user': self.username,
                     'project_id': str(PROJECT_ID)
-                })
+                }) + '\n')
                 time.sleep(0.1)
                 logging.info('Re-connected to wss://clouddata.scratch.mit.edu')
                 logging.info('Re-sending the data')
-                sendPacket({
+                ws.send(json.dumps({
                     'method': 'set',
                     'name': '☁ ' + variable,
                     'value': str(value),
                     'user': self.username,
                     'project_id': str(PROJECT_ID)
-                })
+                }) + '\n')
                 time.sleep(0.1)
 
-    def readCloudVar(self, name, limit="1000"):
+        def readCloudVar(self, name, limit="1000"):
             try:
                 resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
                                 str(PROJECT_ID)+"&limit="+str(limit)+"&offset=0").json()
@@ -414,50 +414,50 @@ class Scratch2Py():
             except:
                 return 'Sorry, there was an error.'
 
-    def cloudConnect(self, pid):
+        def cloudConnect(self, pid):
             global ws
             global PROJECT_ID
             PROJECT_ID = pid
             ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+self.sessionId+';',
                     origin='https://scratch.mit.edu', enable_multithread=True)
-            sendPacket({
+            ws.send(json.dumps({
                 'method': 'handshake',
                 'user': self.username,
                 'project_id': str(pid)
-            })
+            }) + '\n')
             time.sleep(1.5)
 
 
 
         def setCloudVar(self, variable, value):
                 try:
-                    sendPacket({
+                    ws.send(json.dumps({
                         'method': 'set',
                         'name': '☁ ' + variable,
                         'value': str(value),
                         'user': self.username,
                         'project_id': str(PROJECT_ID)
-                    })
+                    }) + '\n')
                     time.sleep(0.1)
                 except BrokenPipeError:
                     logging.error('Broken Pipe Error. Connection Lost.')
                     ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+self.sessionId+';',
                             origin='https://scratch.mit.edu', enable_multithread=True)
-                    sendPacket({
+                    ws.send(json.dumps({
                         'method': 'handshake',
                         'user': self.username,
                         'project_id': str(PROJECT_ID)
-                    })
+                    }) + '\n')
                     time.sleep(0.1)
                     logging.info('Re-connected to wss://clouddata.scratch.mit.edu')
                     logging.info('Re-sending the data')
-                    sendPacket({
+                    ws.send(json.dumps({
                         'method': 'set',
                         'name': '☁ ' + variable,
                         'value': str(value),
                         'user': self.username,
                         'project_id': str(PROJECT_ID)
-                    })
+                    }) + '\n')
                     time.sleep(0.1)
 
         def readCloudVar(self, name, limit="1000"):
@@ -475,29 +475,29 @@ class Scratch2Py():
 
 
     
-    def turbowarpConnect(self, pid):
-        global ws
-        global PROJECT_ID
-        PROJECT_ID = pid
-        ws.connect('wss://clouddata.turbowarp.org',
+        def turbowarpConnect(self, pid):
+            global ws
+            global PROJECT_ID
+            PROJECT_ID = pid
+            ws.connect('wss://clouddata.turbowarp.org',
                origin='https://turbowarp.org', enable_multithread=True)
-        sendPacket({
-            'method': 'handshake',
-            'user': self.username,
-            'project_id': str(pid)
-        })
-        time.sleep(1.5)
+            ws.send(json.dumps({
+                'method': 'handshake',
+                'user': self.username,
+                'project_id': str(pid)
+            }) + '\n')
+            time.sleep(1.5)
 
 
-    def setTurbowarpVar(self, variable, value):
-        sendPacket({
-            'method': 'set',
-            'name': '☁ ' + variable,
-            'value': str(value),
-            'user': self.username,
-            'project_id': str(PROJECT_ID)
-        })
-        time.sleep(0.1)
+        def setTurbowarpVar(self, variable, value):
+            ws.send(json.dumps({
+                'method': 'set',
+                'name': '☁ ' + variable,
+                'value': str(value),
+                'user': self.username,
+                'project_id': str(PROJECT_ID)
+                }) + '\n')
+            time.sleep(0.1)
 
-def sendPacket(packet):
-    ws.send(json.dumps(packet) + '\n')
+        def sendPacket(packet):
+            ws.send(json.dumps(packet) + '\n')
