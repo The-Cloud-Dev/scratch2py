@@ -1,1 +1,1 @@
-from scratch2py.main import Scratch2py
+from scratch2py.main import Scratch2Py
