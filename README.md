@@ -16,8 +16,8 @@ pip install scratch2py && pip uninstall websocket-client & pip install websocket
 Import scratch2py in like this:
 
 ```python
-import scratch2py
-s2py = scratch2py.Scratch2Py('username', 'password')
+from scratch2py import Scratch2Py
+s2py = Scratch2Py('username', 'password')
 # Imports s2py and initializes a new s2py object. Enter your Scratch MIT credentials to create a connection with the API.
 ```
 
