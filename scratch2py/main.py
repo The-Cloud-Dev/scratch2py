@@ -1,21 +1,12 @@
-import requests
-import re
-import os
 import websocket
+import requests
+import logging
 import json
 import time
-import logging
 import sys
-import json
-import ScratchEncoder
+import re
 import os
-try:
-    ws = websocket.WebSocket()
-except TypeError:
-    logging.info('Tye y when prompted to reinstall websocket-client')
-    os.system('pip uninstall websocket-client')
-    os.system('pip install websocket-client')
-encoder = ScratchEncoder.Encoder()
+
 try:
     import ScratchEncoder
     import websocket
