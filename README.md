@@ -6,6 +6,7 @@ Based of [scratchclient](https://github.com/CubeyTheCube/scratchclient) by [Raih
 ## Installation
 
 Linux/MacOS: `python3 -m pip install -r requirements.txt`
+
 Windows: `py -m pip install -r requirements.txt`
 
 ## Usage
