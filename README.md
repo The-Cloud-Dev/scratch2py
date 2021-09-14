@@ -5,11 +5,8 @@ Based of [scratchclient](https://github.com/CubeyTheCube/scratchclient) by [Raih
 
 ## Installation
 
-Run this command in your terminal as ONE command.
-
-```bash
-pip install scratch2py && pip uninstall websocket-client & pip install websocket-client
-```
+Linux/MacOS: `python3 -m pip install -r requirements.txt`
+Windows: `py -m pip install -r requirements.txt`
 
 ## Usage
 
