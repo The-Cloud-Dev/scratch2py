@@ -1,14 +1,14 @@
 import requests
 import re
 import os
-import websocket
 import json
 import time
 import logging
 import sys
 import json
-import ScratchEncoder
 import os
+import ScratchEncoder
+import websocket
 try:
     ws = websocket.WebSocket()
 except TypeError:
@@ -370,8 +370,8 @@ class Scratch2Py():
             return titles
 
     class cloud:
-        def __init__(self, pid):
-            PROJECT_ID = pid
+        def __init__(self, username):
+            self.username = username
         def setCloudVar(self, variable, value):
             try:
                 ws.send(json.dumps({
@@ -477,14 +477,14 @@ class Scratch2Py():
     
         def turbowarpConnect(self, pid):
             global ws
-            global PROJECT_ID
-            PROJECT_ID = pid
+            global turbowarpid
+            turbowarpid = pid
             ws.connect('wss://clouddata.turbowarp.org',
                origin='https://turbowarp.org', enable_multithread=True)
             ws.send(json.dumps({
                 'method': 'handshake',
                 'user': self.username,
-                'project_id': str(pid)
+                'project_id': str(turbowarpid)
             }) + '\n')
             time.sleep(1.5)
 
@@ -495,9 +495,25 @@ class Scratch2Py():
                 'name': '☁ ' + variable,
                 'value': str(value),
                 'user': self.username,
-                'project_id': str(PROJECT_ID)
+                'project_id': str(turbowarpid)
                 }) + '\n')
             time.sleep(0.1)
+
+        def readTurbowarpVar(self, variable):
+            ws.send(json.dumps({
+                'method': 'get',
+                'project_id': str(turbowarpid)
+                }) + '\n')
+            time.sleep(0.1)
+            data = ws.recv()
+            data = data.split('\n')
+            result = []
+            for i in data:
+                result.append(json.loads(i))
+            for i in result:
+                if i['name'] == '☁ ' + variable:
+                    return i['value']
+            print('Variable not found.')
 
         def sendPacket(packet):
             ws.send(json.dumps(packet) + '\n')
