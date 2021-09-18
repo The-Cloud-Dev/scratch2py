@@ -109,8 +109,8 @@ project.unlove()
 Using the module for cloud.
 
 ```python
-cloudproject = s2py.cloud('Project ID')
-# Starts a cloud connection to a specific project
+cloudproject = s2py.cloud('Username')
+# Creates a new cloud object.
 cloudproject.setCloudVar('CloudVar', 'Value')
 # Sets a value to a cloud variable. Don't add the cloud symbol.
 cloudproject.readCloudVar('variable name', 'Limit(optional)')
@@ -119,6 +119,8 @@ cloudproject.turbowarpConnect('pid')
 # Connects to a turbowarp project
 cloudproject.setTurbowarpVar('var','value')
 # Changes the value of a turbowarp var.
+cloudproject.readTurbowarpVar('variablename')
+# Returns the value of a turbowarp variable. (You must be connected to a project before reading a variable)
 ```
 
 ## Turbowarp and encode/decode functions
