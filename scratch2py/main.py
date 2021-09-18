@@ -29,6 +29,8 @@ encoder = ScratchEncoder.Encoder()
 
 class Scratch2Py():
     def __init__(self, username, password):
+        global uname
+        uname = username
         self.username = username
         # This is never used anywhere else...
         self.password = password
@@ -49,6 +51,8 @@ class Scratch2Py():
             self.sessionId = re.search(
                 '\"(.*)\"', request.headers['Set-Cookie']).group()
             self.token = request.json()[0]["token"]
+            global sessionId
+            sessionId = self.sessionId
             headers = {
                 "x-requested-with": "XMLHttpRequest",
                 "Cookie": "scratchlanguage=en;permissions=%7B%7D;",
@@ -347,8 +351,6 @@ class Scratch2Py():
             return requests.get("https://api.scratch.mit.edu/users/"+str(self.user)+"/messages/count").json()['count']
 
         def getMessages(self):
-            print("https://api.scratch.mit.edu/users/" +
-                str(self.user)+"messages" + "/")
             return requests.get("https://api.scratch.mit.edu/users/"+str(self.user)+"/messages" + "/", headers=self.headers).json()
 
         def getStatus(self):
@@ -369,9 +371,20 @@ class Scratch2Py():
                 titles.append('Title: ' + str(x))
             return titles
 
-    class cloud:
-        def __init__(self, username):
-            self.username = username
+    class scratchConnect:
+        def __init__(self, pid):
+            global ws
+            global PROJECT_ID
+            self.username = uname
+            PROJECT_ID = pid
+            ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+sessionId+';',
+                    origin='https://scratch.mit.edu', enable_multithread=True)
+            ws.send(json.dumps({
+                'method': 'handshake',
+                'user': self.username,
+                'project_id': str(pid)
+            }) + '\n')
+            time.sleep(1.5)
         def setCloudVar(self, variable, value):
             try:
                 ws.send(json.dumps({
@@ -414,70 +427,11 @@ class Scratch2Py():
             except:
                 return 'Sorry, there was an error.'
 
-        def cloudConnect(self, pid):
-            global ws
-            global PROJECT_ID
-            PROJECT_ID = pid
-            ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+self.sessionId+';',
-                    origin='https://scratch.mit.edu', enable_multithread=True)
-            ws.send(json.dumps({
-                'method': 'handshake',
-                'user': self.username,
-                'project_id': str(pid)
-            }) + '\n')
-            time.sleep(1.5)
-
-
-
-        def setCloudVar(self, variable, value):
-                try:
-                    ws.send(json.dumps({
-                        'method': 'set',
-                        'name': '☁ ' + variable,
-                        'value': str(value),
-                        'user': self.username,
-                        'project_id': str(PROJECT_ID)
-                    }) + '\n')
-                    time.sleep(0.1)
-                except BrokenPipeError:
-                    logging.error('Broken Pipe Error. Connection Lost.')
-                    ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+self.sessionId+';',
-                            origin='https://scratch.mit.edu', enable_multithread=True)
-                    ws.send(json.dumps({
-                        'method': 'handshake',
-                        'user': self.username,
-                        'project_id': str(PROJECT_ID)
-                    }) + '\n')
-                    time.sleep(0.1)
-                    logging.info('Re-connected to wss://clouddata.scratch.mit.edu')
-                    logging.info('Re-sending the data')
-                    ws.send(json.dumps({
-                        'method': 'set',
-                        'name': '☁ ' + variable,
-                        'value': str(value),
-                        'user': self.username,
-                        'project_id': str(PROJECT_ID)
-                    }) + '\n')
-                    time.sleep(0.1)
-
-        def readCloudVar(self, name, limit="1000"):
-                try:
-                    resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
-                                    str(PROJECT_ID)+"&limit="+str(limit)+"&offset=0").json()
-                    for i in resp:
-                        x = i['name']
-                        if x == ('☁ ' + str(name)):
-                            return i['value']
-                except:
-                    return 'Sorry, there was an error.'
-
-
-
-
-    
-        def turbowarpConnect(self, pid):
+    class turbowarpConnect:
+        def __init__(self, pid):    
             global ws
             global turbowarpid
+            self.username = uname
             turbowarpid = pid
             ws.connect('wss://clouddata.turbowarp.org',
                origin='https://turbowarp.org', enable_multithread=True)
@@ -513,7 +467,4 @@ class Scratch2Py():
             for i in result:
                 if i['name'] == '☁ ' + variable:
                     return i['value']
-            print('Variable not found.')
-
-        def sendPacket(packet):
-            ws.send(json.dumps(packet) + '\n')
+            return 'Variable not found.'
