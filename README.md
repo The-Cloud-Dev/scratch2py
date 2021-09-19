@@ -104,12 +104,12 @@ project.unlove()
 # Unloves a project
 ```
 
-## scratchCloud Class
+## scratchConnect Class
 
 Using the module for cloud on scratch.
 
 ```python
-cloudproject = s2py.scratchCloud('Project_Id')
+cloudproject = s2py.scratchConnect('Project_Id')
 # Creates a new connection to a Scratch project.
 cloudproject.setCloudVar('CloudVar', 'Value')
 # Sets a value to a cloud variable. Don't add the cloud symbol.
