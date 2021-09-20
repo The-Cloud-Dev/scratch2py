@@ -102,34 +102,37 @@ project.unlove()
 # Unloves a project
 ```
 
-## cloud Class
+## scratchConnect Class
 
-Using the module for cloud.
+Using the module for cloud on scratch.
 
 ```python
-cloudproject = s2py.cloud('Project ID')
-# Starts a cloud connection to a specific project
+cloudproject = s2py.scratchConnect('Project_Id')
+# Creates a new connection to a Scratch project.
 cloudproject.setCloudVar('CloudVar', 'Value')
 # Sets a value to a cloud variable. Don't add the cloud symbol.
 cloudproject.readCloudVar('variable name', 'Limit(optional)')
 # Gets the value of a cloud variable. Limit is when the program should stop looking for the value. Limit is 1000 by default.
-cloudproject.turbowarpConnect('pid')
-# Connects to a turbowarp project
-cloudproject.setTurbowarpVar('var','value')
-# Changes the value of a turbowarp var.
 ```
 
-## Turbowarp and encode/decode functions
+## turbowarpConnect class
+
+```python
+turbowarp = s2py.turbowarpConnect('project_id')
+#  Creates a new connection to a Turbowarp project.
+turbowarp.setCloudVar('CloudVar', 'Value')
+# Sets a value to a cloud variable. Don't add the cloud symbol.
+turbowarp.readTurbowarpVar('variable name')
+# Gets the value of a cloud variable. 
+```
+
+## Encode/decode functions
 
 ```python
 s2py.encode('value')
 # Encodes a value. Scratch version available on my Scratch profile
 s2py.decode('value')
 # Decodes a value. To be used to communicate to and from a Scratch project.
-s2py.turbowarpConnect('pid')
-# Connects to a turbowarp project
-s2py.setTurbowarpVar('var','value')
-# Changes the value of a turbowarp var.
 ```
 
 ## The End
