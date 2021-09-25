@@ -395,7 +395,7 @@ class Scratch2Py():
                 }) + '\n')
             except BrokenPipeError:
                 logging.error('Broken Pipe Error. Connection Lost.')
-                ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+self.sessionId+';',
+                ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+sessionId+';',
                         origin='https://scratch.mit.edu', enable_multithread=True)
                 ws.send(json.dumps({
                     'method': 'handshake',
@@ -422,118 +422,6 @@ class Scratch2Py():
                         return i['value']
             except:
                 return 'Sorry, there was an error.'
-
-    class cloudDatabase:
-        def __init__(self, pid):
-            self.id = pid
-            self.username = uname
-            ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+sessionId+';',
-                    origin='https://scratch.mit.edu', enable_multithread=True)
-            ws.send(json.dumps({
-                'method': 'handshake',
-                'user': self.username,
-                'project_id': str(self.id)
-            }) + '\n')
-
-        def __setCloudVar(self, variable, value):
-            try:
-                ws.send(json.dumps({
-                    'method': 'set',
-                    'name': '☁ ' + variable,
-                    'value': str(value),
-                    'user': self.username,
-                    'project_id': str(PROJECT_ID)
-                }) + '\n')
-            except BrokenPipeError:
-                logging.error('Broken Pipe Error. Connection Lost.')
-                ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+self.sessionId+';',
-                        origin='https://scratch.mit.edu', enable_multithread=True)
-                ws.send(json.dumps({
-                    'method': 'handshake',
-                    'user': self.username,
-                    'project_id': str(PROJECT_ID)
-                }) + '\n')
-                logging.info('Re-connected to wss://clouddata.scratch.mit.edu')
-                logging.info('Re-sending the data')
-                ws.send(json.dumps({
-                    'method': 'set',
-                    'name': '☁ ' + variable,
-                    'value': str(value),
-                    'user': self.username,
-                    'project_id': str(PROJECT_ID)
-                }) + '\n')
-
-        def __readCloudVar(self, name, limit="1000"):
-            try:
-                resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
-                                str(PROJECT_ID)+"&limit="+str(limit)+"&offset=0").json()
-                for i in resp:
-                    x = i['name']
-                    if x == ('☁ ' + str(name)):
-                        return i['value']
-            except:
-                return 'Sorry, there was an error.'
-
-        def startLoop(self):
-            f = open('data.json','r')
-            try:
-                json.loads(f)
-                f = open('data.json','w')
-                f.write(str([]))
-            except:
-                f = open('data.json','w')
-            while True:
-                var = self.__readCloudVar('Method')
-                data = encoder.decode(var)
-                if data == "get":
-                    var1 = self.__readCloudVar('Send')
-                    data1 = encoder.decode('var1')
-                    f = open('data.json','r')
-                    file = f.read()
-                    for i in file:
-                        if data1 in i:
-                            send = encoder.encode(i[var1])
-                            self.__setCloudVar('Return',send)
-                            logging.info('Data returned to Scratch')
-                        else:
-                            send = encoder.encode('Error: Object not in file')
-                            self.__setCloudVar('Return', send)
-                            return 'Object not in file'
-                if data == "set":
-                    var1 = self.__readCloudVar('Send')
-                    data1 = encoder.decode(var1)
-                    f = open('data.json','r')
-                    file = f.read()
-                    count = 0
-                    for i in file:    
-                        if data1 in i:
-                            data2 = self.__readCloudVar('Data')
-                            data2 = encoder.decode(data2)
-                            file.pop(count)
-                            object = {data1: data2}
-                            file.append(object)
-                            f = open('data.json','r+')
-                            f.truncate()
-                            f = open('data.json','w+')
-                            f.write(str(file))
-                            send = encoder.encode('Data added')
-                            count = int(count)+1    
-                            self.__setCloudVar('Return',send)
-                            logging.info('Data added')
-                if data == "delete":
-                    file = open('data.json','r')
-                    data2 = file.read()
-                    var1 = self.__readCloudVar('Send')
-                    data1 = encoder.decode(var1)
-                    count = 0
-                    for i in data2:
-                        if i == data1:
-                            data2.pop(count)
-                            logging.info('Object removed')
-                            send = encoder.encode('Object removed')
-                            self.__setCloudVar('Return',send)
-                        count = int(count)+1
-            time.sleep(5)
     class turbowarpConnect:
         def __init__(self, pid):    
             global ws
