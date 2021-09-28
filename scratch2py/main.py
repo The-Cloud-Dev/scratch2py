@@ -9,7 +9,7 @@ import json
 import os
 import ScratchEncoder
 import websocket
-logging.basicConfig(filename='s2py.log',encoding='utf-8',level=logging.INFO)
+logging.basicConfig(filename='s2py.log',level=logging.INFO)
 try:
     ws = websocket.WebSocket()
 except TypeError:
