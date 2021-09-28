@@ -9,6 +9,7 @@ import json
 import os
 import ScratchEncoder
 import websocket
+logging.basicConfig(filename='s2py.log',encoding='utf-8',level=logging.INFO)
 try:
     ws = websocket.WebSocket()
 except TypeError:
@@ -422,6 +423,136 @@ class Scratch2Py():
                         return i['value']
             except:
                 return 'Sorry, there was an error.'
+
+    class cloudDatabase:
+        def __init__(self, pid):
+            self.id = pid
+            self.username = uname
+            ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+sessionId+';',
+                    origin='https://scratch.mit.edu', enable_multithread=True)
+            ws.send(json.dumps({
+                'method': 'handshake',
+                'user': self.username,
+                'project_id': str(self.id)
+            }) + '\n')
+
+        def __setCloudVar(self, variable, value):
+            try:
+                ws.send(json.dumps({
+                    'method': 'set',
+                    'name': '☁ ' + variable,
+                    'value': str(value),
+                    'user': self.username,
+                    'project_id': str(self.id)
+                }) + '\n')
+            except BrokenPipeError:
+                logging.error('Broken Pipe Error. Connection Lost.')
+                ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+sessionId+';',
+                        origin='https://scratch.mit.edu', enable_multithread=True)
+                ws.send(json.dumps({
+                    'method': 'handshake',
+                    'user': self.username,
+                    'project_id': str(self.id)
+                }) + '\n')
+                logging.info('Re-connected to wss://clouddata.scratch.mit.edu')
+                logging.info('Re-sending the data')
+                ws.send(json.dumps({
+                    'method': 'set',
+                    'name': '☁ ' + variable,
+                    'value': str(value),
+                    'user': self.username,
+                    'project_id': str(self.id)
+                }) + '\n')
+
+        def __readCloudVar(self, name, limit="1000"):
+                try:
+                    resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
+                                str(self.id)+"&limit="+str(limit)+"&offset=0").json()
+                    for i in resp:
+                        x = i['name']
+                        if x == ('☁ ' + str(name)):
+                            return i['value']
+                except json.decoder.JSONDecodeError:
+                    resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
+                                str(self.id)+"&limit="+str(limit)+"&offset=0").json()
+                    for i in resp:
+                        x = i['name']
+                        if x == ('☁ ' + str(name)):
+                            return i['value']
+
+        def startLoop(self):
+            data = []
+            while True:
+                encodedMethod = self.__readCloudVar('Method')
+                Method = encoder.decode(encodedMethod)
+                if Method == "set":
+                    encodedSend = self.__readCloudVar('Send')
+                    Send = str(encoder.decode(encodedSend))
+                    encodedVal = self.__readCloudVar('Data')
+                    Val = str(encoder.decode(encodedVal))
+                    intVal = encoder.decode(encodedVal)
+                    c = 0
+                    for i in Send:
+                        if str(i) in "1234567890":
+                            c = int(c)+1
+                    if c == len(Send):
+                        if int(Send) > len(data):
+                            if int(Send) == int(len(data))+1:
+                                data.append(intVal)
+                                logging.info('Data added.')
+                                tosend = encoder.encode('Data added.')
+                                self.__setCloudVar('Return',tosend)
+                                self.__setCloudVar('Method','')
+                            else:
+                                while len(data) != int(Send)-1:
+                                    data.append('none')
+                                data.append(intVal)
+                                logging.info('Data added.')
+                                tosend = encoder.encode('Data added.')
+                                self.__setCloudVar('Return',tosend)
+                                self.__setCloudVar('Method','')
+                        else:
+                            data.pop(int(Send)-1)
+                            data.insert(int(Send), intVal)
+                            logging.info('Data added.')
+                            tosend = encoder.encode('Data added.')
+                            self.__setCloudVar('Return',tosend)
+                            self.__setCloudVar('Method','')
+                    else:
+                        tosend = encoder.encode('Invalid input. Variable name must be int.')
+                        self.__setCloudVar('Return', tosend)
+                if Method == "get":
+                    encodedSend = self.__readCloudVar('Send')
+                    Send = encoder.decode(encodedSend)
+                    c = 0
+                    for i in Send:
+                        if str(i) in "1234567890":
+                            c = int(c)+1
+                    if c == len(Send) and int(Send) > 0 and int(Send) < int(len(data))+1:
+                        tosend = encoder.encode(data[int(Send)-1])
+                        self.__setCloudVar('Return',tosend)
+                        logging.info('Data sent.')
+                        self.__setCloudVar('Method','')
+                    else:
+                        tosend = encoder.encode('Invalid input.')
+                        self.__setCloudVar('Return', tosend)
+                if Method == "delete":
+                    encodedSend = self.__readCloudVar('Send')
+                    Send = encoder.decode(encodedSend)
+                    c = 0
+                    for i in Send:
+                        if str(i) in "1234567890":
+                            c = int(c)+1
+                    if c == len(Send) and int(Send) > 0 and int(Send) < int(len(data))+1:
+                        data.pop(int(Send)-1)
+                        data.insert(int(Send)-1,'none')
+                        logging.info('Variable deleted.')
+                        tosend = encoder.encode('Variable deleted.')
+                        self.__setCloudVar('Return',tosend)
+                    else:
+                        tosend = encoder.encode('Invalid input.')
+                        self.__setCloudVar('Return', tosend)                 
+
     class turbowarpConnect:
         def __init__(self, pid):    
             global ws
