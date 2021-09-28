@@ -421,6 +421,7 @@ class Scratch2Py():
                     x = i['name']
                     if x == ('☁ ' + str(name)):
                         return i['value']
+                return 0 
             except:
                 return 'Sorry, there was an error.'
 
@@ -472,6 +473,7 @@ class Scratch2Py():
                         x = i['name']
                         if x == ('☁ ' + str(name)):
                             return i['value']
+                    return 0 
                 except json.decoder.JSONDecodeError:
                     resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
                                 str(self.id)+"&limit="+str(limit)+"&offset=0").json()
