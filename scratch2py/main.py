@@ -486,7 +486,8 @@ class Scratch2Py():
             data = []
             while True:
                 encodedMethod = self.__readCloudVar('Method')
-                Method = encoder.decode(encodedMethod)
+                if Method != 0:
+                    Method = encoder.decode(encodedMethod)
                 if Method == "set":
                     encodedSend = self.__readCloudVar('Send')
                     Send = str(encoder.decode(encodedSend))
