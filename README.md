@@ -126,6 +126,16 @@ turbowarp.readTurbowarpVar('variable name')
 # Gets the value of a cloud variable. 
 ```
 
+## cloudDatabase class
+
+```python
+db = s2py.cloudDatabase('Project id')
+# Creates a new database that will detect messages on a certain project id
+db.startLoop()
+# Starts a new loop for the database. 
+Refer [here](https://scratch.mit.edu/projects/574032493/) for more info
+```
+
 ## Encode/decode functions
 
 ```python
