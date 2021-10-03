@@ -1,25 +1,21 @@
-try:
-    import requests
-    import re
-    import os
-    import json
-    import time
-    import logging  
-    import sys  
-    import json
-    import os
-    import websocket
-except ModuleNotFoundError as e:
-    logging.info(e+'; Installing needed modules...')
-    os.chdir(os.getcwd())
-    os.system('pip install -r requirements.txt')
+import requests
+import re
+import os
+import json
+import time
+import logging  
+import sys  
+import json
+import websocket
+
 try:
     ws = websocket.WebSocket()
 except TypeError:
-    logging.info('Tye y when prompted to reinstall websocket-client')
-    os.system('pip uninstall websocket-client')
-    os.system('pip install websocket-client')
+    logging.error('Incorrect websocket module!')
+    sys.exit()
+    
 logging.basicConfig(filename='s2py.log',level=logging.INFO)
+
 class Scratch2Py():
     global chars
     chars = "abcdefghijklmnopqrstuvwxyz0123456789+-. _"
@@ -27,7 +23,6 @@ class Scratch2Py():
         global uname
         uname = username
         self.username = username
-        # This is never used anywhere else...
         self.password = password
         self.headers = {
             "x-csrftoken": "a",
