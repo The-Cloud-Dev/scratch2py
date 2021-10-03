@@ -1,31 +1,25 @@
-import requests
-import re
-import os
-import json
-import time
-import logging
-import sys
-import json
-import os
-import websocket
-logging.basicConfig(filename='s2py.log',level=logging.INFO)
+try:
+    import requests
+    import re
+    import os
+    import json
+    import time
+    import logging  
+    import sys  
+    import json
+    import os
+    import websocket
+except ModuleNotFoundError as e:
+    logging.info(e+'; Installing needed modules...')
+    os.chdir(os.getcwd())
+    os.system('pip install -r requirements.txt')
 try:
     ws = websocket.WebSocket()
 except TypeError:
     logging.info('Tye y when prompted to reinstall websocket-client')
     os.system('pip uninstall websocket-client')
     os.system('pip install websocket-client')
-encoder = ScratchEncoder.Encoder()
-try:
-    import ScratchEncoder
-    import websocket
-except ModuleNotFoundError as e:
-    logging.info(e+'; Installing needed modules...')
-    os.chdir(os.getcwd())
-    os.system('pip install -r requirements.txt')
-
-ws = websocket.WebSocket()
-
+logging.basicConfig(filename='s2py.log',level=logging.INFO)
 class Scratch2Py():
     global chars
     chars = "abcdefghijklmnopqrstuvwxyz0123456789+-. _"
