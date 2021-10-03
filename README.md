@@ -1,15 +1,13 @@
 # Scratch2py
 
 Scratch2py or S2py is a easy to use, versatile tool to communicate with the Scratch API
-Based of [scratchclient](https://github.com/CubeyTheCube/scratchclient) by [Raihan142857](https://scratch.mit.edu/users/Raihan142857/)
+Based off [scratchclient](https://github.com/CubeyTheCube/scratchclient) by [Raihan142857](https://scratch.mit.edu/users/Raihan142857/)
 
 ## Installation
 
-Run this command in your terminal as ONE command.
-
-```bash
-pip install scratch2py && pip uninstall websocket-client & pip install websocket-client
-```
+Windows: `py -m pip install scratch2py && py -m pip install --upgrade websocket-client`
+<br>
+Linux/MacOS: `python3 -m pip install scratch2py && python3 -m pip install --upgrade websocket-client`
 
 ## Usage
 
