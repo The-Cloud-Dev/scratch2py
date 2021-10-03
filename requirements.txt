@@ -1,3 +1,2 @@
 requests>=2.25.1
-ScratchEncoder>=0.1.4
 websocket-client>=1.2.1

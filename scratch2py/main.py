@@ -7,7 +7,6 @@ import logging
 import sys
 import json
 import os
-import ScratchEncoder
 import websocket
 logging.basicConfig(filename='s2py.log',level=logging.INFO)
 try:
@@ -26,9 +25,10 @@ except ModuleNotFoundError as e:
     os.system('pip install -r requirements.txt')
 
 ws = websocket.WebSocket()
-encoder = ScratchEncoder.Encoder()
 
 class Scratch2Py():
+    global chars
+    chars = "abcdefghijklmnopqrstuvwxyz0123456789+-. _"
     def __init__(self, username, password):
         global uname
         uname = username
@@ -81,10 +81,26 @@ class Scratch2Py():
             }
 
     def decode(self, text):
-        return encoder.decode(text)
+        decoded = ""
+        y = 0
+        for i in range(0,len(text)//2):
+            x = chars[int(str(text[y])+str(text[int(y)+1]))-9]
+            decoded = str(decoded)+str(x)
+            y += 2
+        return decoded
     
     def encode(self, text):
-        return encoder.encode(text)
+        global chars
+        text = text.lower()
+        encoded = ""
+        length = int(len(text))
+        for i in range(0,length):
+            try:
+                x = int(chars.index(text[i])+int(9))
+                encoded = encoded + str(x)
+            except ValueError:
+                logging.error('Character not supported')
+        return encoded
     
     class project:
         def __init__(self, id):
