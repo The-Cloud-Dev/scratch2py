@@ -5,9 +5,9 @@ Based off [scratchclient](https://github.com/CubeyTheCube/scratchclient) by [Rai
 
 ## Installation
 
-Windows: `py -m pip install scratch2py && py -m pip install --upgrade websocket-client`
+Windows: `py -m pip install scratch2py && py -m pip install --force-reinstall websocket-client`
 <br>
-Linux/MacOS: `python3 -m pip install scratch2py && python3 -m pip install --upgrade websocket-client`
+Linux/MacOS: `python3 -m pip install scratch2py && python3 -m pip install --force-reinstall websocket-client`
 
 ## Usage
 
