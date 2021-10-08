@@ -134,7 +134,7 @@ db = s2py.cloudDatabase('Project id')
 db.startLoop()
 # Starts a new loop for the database. 
 ```
-Refer [here](https://scratch.mit.edu/projects/574032493/) for more info
+Refer [here](https://scratch.mit.edu/projects/574609423/) for more info
 
 
 ## Encode/decode functions
