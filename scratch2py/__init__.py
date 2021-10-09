@@ -79,7 +79,7 @@ class Scratch2Py():
         decoded = ""
         y = 0
         for i in range(0, len(text)//2):
-            x = self.chars[int(str(text[y])+str(text[int(y)+1]))-9]
+            x = self.chars[int(str(text[y])+str(text[int(y)+1]))-11]
             decoded = str(decoded)+str(x)
             y += 2
         return decoded
@@ -90,7 +90,7 @@ class Scratch2Py():
         length = int(len(text))
         for i in range(0, length):
             try:
-                x = int(self.chars.index(text[i])+int(9))
+                x = int(self.chars.index(text[i])+int(11))
                 encoded = encoded + str(x)
             except ValueError:
                 logging.error('Character not supported')
@@ -472,7 +472,7 @@ class Scratch2Py():
             decoded = ""
             y = 0
             for i in range(0, len(text)//2):
-                x = self.chars[int(str(text[y])+str(text[int(y)+1]))-9]
+                x = self.chars[int(str(text[y])+str(text[int(y)+1]))-11]
                 decoded = str(decoded)+str(x)
                 y += 2
             return decoded
@@ -483,7 +483,7 @@ class Scratch2Py():
             length = int(len(text))
             for i in range(0, length):
                 try:
-                    x = int(self.chars.index(text[i])+int(9))
+                    x = int(self.chars.index(text[i])+int(11))
                     encoded = encoded + str(x)
                 except ValueError:
                     logging.error('Character not supported')
@@ -625,7 +625,7 @@ class Scratch2Py():
             decoded = ""
             y = 0
             for i in range(0, len(text)//2):
-                x = self.chars[int(str(text[y])+str(text[int(y)+1]))-9]
+                x = self.chars[int(str(text[y])+str(text[int(y)+1]))-11]
                 decoded = str(decoded)+str(x)
                 y += 2
             return decoded
@@ -636,7 +636,7 @@ class Scratch2Py():
             length = int(len(text))
             for i in range(0, length):
                 try:
-                    x = int(self.chars.index(text[i])+int(9))
+                    x = int(self.chars.index(text[i])+int(11))
                     encoded = encoded + str(x)
                 except ValueError:
                     logging.error('Character not supported')
