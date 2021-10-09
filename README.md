@@ -50,6 +50,8 @@ user.unfollowUser('thatotheruser')
 # Unfollows a user
 user.toggleCommenting()
 # Toggles commenting on your profile (On/Off)
+user.postComment('text','user','parent_id (OPTIONAL', 'commentee_id (OPTIONAL)'))
+# Posts a comment on a users profile
 ```
 
 ## studioSession class
@@ -136,8 +138,8 @@ db = s2py.cloudDatabase('Project id')
 db.startLoop()
 # Starts a new loop for the database. 
 ```
-Refer [here](https://scratch.mit.edu/projects/574609423/) for more info
 
+Refer [here](https://scratch.mit.edu/projects/574609423/) for more info
 
 ## Encode/decode functions
 
