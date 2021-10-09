@@ -4,8 +4,8 @@ try:
     import os
     import json
     import time
-    import logging  
-    import sys  
+    import logging
+    import sys
     import json
     import os
     import websocket
@@ -19,11 +19,12 @@ except TypeError:
     logging.info('Tye y when prompted to reinstall websocket-client')
     os.system('pip uninstall websocket-client')
     os.system('pip install websocket-client')
-logging.basicConfig(filename='s2py.log',level=logging.INFO)
+logging.basicConfig(filename='s2py.log', level=logging.INFO)
+
+
 class Scratch2Py():
-    global chars
-    chars = "abcdefghijklmnopqrstuvwxyz0123456789+-. _"
     def __init__(self, username, password):
+        self.chars = "abcdefghijklmnopqrstuvwxyz0123456789+-. _"
         global uname
         uname = username
         self.username = username
@@ -77,25 +78,24 @@ class Scratch2Py():
     def decode(self, text):
         decoded = ""
         y = 0
-        for i in range(0,len(text)//2):
-            x = chars[int(str(text[y])+str(text[int(y)+1]))-9]
+        for i in range(0, len(text)//2):
+            x = self.chars[int(str(text[y])+str(text[int(y)+1]))-9]
             decoded = str(decoded)+str(x)
             y += 2
         return decoded
 
     def encode(self, text):
-        global chars
         text = text.lower()
         encoded = ""
         length = int(len(text))
-        for i in range(0,length):
+        for i in range(0, length):
             try:
-                x = int(chars.index(text[i])+int(9))
+                x = int(self.chars.index(text[i])+int(9))
                 encoded = encoded + str(x)
             except ValueError:
                 logging.error('Character not supported')
         return encoded
-    
+
     class project:
         def __init__(self, id):
             self.id = id
@@ -125,7 +125,7 @@ class Scratch2Py():
                                     "https://api.scratch.mit.edu/projects/"+str(self.id))
                                 data = r.json()
                                 return data['stats']['views']
-        
+
         def getComments(self):
             uname = requests.get(
                 "https://api.scratch.mit.edu/projects/"+str(self.id)).json()
@@ -144,7 +144,8 @@ class Scratch2Py():
                                 x = i['image']
                             else:
                                 x = "None"
-                        comments.append(str('Username: '+str(uname))+(str(', Content: ')+str(x)))
+                        comments.append(
+                            str('Username: '+str(uname))+(str(', Content: ')+str(x)))
                     return data
 
         def getInfo(self):
@@ -161,23 +162,25 @@ class Scratch2Py():
             r = json.loads(requests.get(
                 'https://projects.scratch.mit.edu/'+str(self.id)
             ).text.encode('utf-8'))
-            
+
             assets = []
             for i in range(len(r['targets'])):
                 if type == 'img':
-                    assets.append('https://cdn.assets.scratch.mit.edu/internalapi/asset/'+str(r['targets'][i]['costumes'][0]['md5ext'])+'/get')
+                    assets.append('https://cdn.assets.scratch.mit.edu/internalapi/asset/' +
+                                  str(r['targets'][i]['costumes'][0]['md5ext'])+'/get')
                 elif type == 'snd':
-                    assets.append('https://cdn.assets.scratch.mit.edu/internalapi/asset/'+str(r['targets'][i]['sounds'][0]['md5ext'])+'/get')
+                    assets.append('https://cdn.assets.scratch.mit.edu/internalapi/asset/' +
+                                  str(r['targets'][i]['sounds'][0]['md5ext'])+'/get')
             return assets
 
     class studioSession:
         def __init__(self, sid):
             self.headers = {
-            "x-csrftoken": "a",
-            "x-requested-with": "XMLHttpRequest",
-            "Cookie": "scratchcsrftoken=a;scratchlanguage=en;",
-            "referer": "https://scratch.mit.edu",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36"
+                "x-csrftoken": "a",
+                "x-requested-with": "XMLHttpRequest",
+                "Cookie": "scratchcsrftoken=a;scratchlanguage=en;",
+                "referer": "https://scratch.mit.edu",
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36"
             }
             self.sid = sid
 
@@ -185,15 +188,17 @@ class Scratch2Py():
             self.headers["referer"] = (
                 "https://scratch.mit.edu/studios/" + str(self.sid) + "/curators/")
             requests.put("https://scratch.mit.edu/site-api/users/curators-in/" +
-                        str(self.sid) + "/invite_curator/?usernames=" + user, headers=self.headers)
+                         str(self.sid) + "/invite_curator/?usernames=" + user, headers=self.headers)
 
         def addStudioProject(self, pid):
-            self.headers['referer'] = "https://scratch.mit.edu/projects/"+str(pid)
+            self.headers['referer'] = "https://scratch.mit.edu/projects/" + \
+                str(pid)
             return requests.post("https://api.scratch.mit.edu/studios/"+str(self.sid)+"/project/"+str(pid), headers=self.headers)
 
         def postComment(self, content, parent_id="", commentee_id=""):
             self.headers['referer'] = (
-                "https://scratch.mit.edu/studios/" + str(self.sid) + "/comments/"
+                "https://scratch.mit.edu/studios/" +
+                str(self.sid) + "/comments/"
             )
             data = {
                 "commentee_id": commentee_id,
@@ -219,7 +224,8 @@ class Scratch2Py():
             return json.dumps(comments)
 
         def follow(self):
-            self.headers['referer'] = "https://scratch.mit.edu/studios/"+str(self.sid)
+            self.headers['referer'] = "https://scratch.mit.edu/studios/" + \
+                str(self.sid)
             return requests.put(
                 "https://scratch.mit.edu/site-api/users/bookmarkers/"
                 + str(self.sid)
@@ -229,7 +235,8 @@ class Scratch2Py():
             ).json()
 
         def unfollow(self):
-            self.headers['referer'] = "https://scratch.mit.edu/studios/"+str(self.sid)
+            self.headers['referer'] = "https://scratch.mit.edu/studios/" + \
+                str(self.sid)
             return requests.put(
                 "https://scratch.mit.edu/site-api/users/bookmarkers/"
                 + str(id)
@@ -241,11 +248,11 @@ class Scratch2Py():
     class projectSession:
         def __init__(self, pid):
             self.headers = {
-            "x-csrftoken": "a",
-            "x-requested-with": "XMLHttpRequest",
-            "Cookie": "scratchcsrftoken=a;scratchlanguage=en;",
-            "referer": "https://scratch.mit.edu",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36"
+                "x-csrftoken": "a",
+                "x-requested-with": "XMLHttpRequest",
+                "Cookie": "scratchcsrftoken=a;scratchlanguage=en;",
+                "referer": "https://scratch.mit.edu",
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36"
             }
             self.pid = pid
 
@@ -253,16 +260,17 @@ class Scratch2Py():
             self.headers["referer"] = (
                 "https://scratch.mit.edu/projects/"+str(self.pid)
             )
-            return requests.put("https://api.scratch.mit.edu/proxy/projects/"+str(self.pid)+"/share",headers=self.headers)
-        
+            return requests.put("https://api.scratch.mit.edu/proxy/projects/"+str(self.pid)+"/share", headers=self.headers)
+
         def unshare(self):
             self.headers["referer"] = (
                 "https://scratch.mit.edu/projects/"+str(self.pid)
             )
-            return requests.put("https://api.scratch.mit.edu/proxy/projects/"+str(self.pid)+"/unshare",headers=self.headers)
+            return requests.put("https://api.scratch.mit.edu/proxy/projects/"+str(self.pid)+"/unshare", headers=self.headers)
 
         def favorite(self):
-            self.headers['referer'] = "https://scratch.mit.edu/projects/"+str(self.pid)
+            self.headers['referer'] = "https://scratch.mit.edu/projects/" + \
+                str(self.pid)
             return requests.post(
                 "https://api.scratch.mit.edu/proxy/projects/"
                 + str(self.pid)
@@ -272,7 +280,8 @@ class Scratch2Py():
             ).json()
 
         def unfavorite(self):
-            self.headers['referer'] = "https://scratch.mit.edu/projects/"+str(self.pid)
+            self.headers['referer'] = "https://scratch.mit.edu/projects/" + \
+                str(self.pid)
             return requests.delete(
                 "https://api.scratch.mit.edu/proxy/projects/"
                 + str(self.pid)
@@ -282,7 +291,8 @@ class Scratch2Py():
             ).json()
 
         def love(self):
-            self.headers['referer'] = "https://scratch.mit.edu/projects/"+str(self.pid)
+            self.headers['referer'] = "https://scratch.mit.edu/projects/" + \
+                str(self.pid)
             return requests.post(
                 "https://api.scratch.mit.edu/proxy/projects/"
                 + str(self.pid)
@@ -292,7 +302,8 @@ class Scratch2Py():
             ).json()
 
         def unlove(self):
-            self.headers['referer'] = "https://scratch.mit.edu/projects/"+str(self.pid)
+            self.headers['referer'] = "https://scratch.mit.edu/projects/" + \
+                str(self.pid)
             return requests.delete(
                 "https://api.scratch.mit.edu/proxy/projects/"
                 + str(self.pid)
@@ -304,11 +315,11 @@ class Scratch2Py():
     class userSession:
         def __init__(self, username):
             self.headers = {
-            "x-csrftoken": "a",
-            "x-requested-with": "XMLHttpRequest",
-            "Cookie": "scratchcsrftoken=a;scratchlanguage=en;",
-            "referer": "https://scratch.mit.edu",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36"
+                "x-csrftoken": "a",
+                "x-requested-with": "XMLHttpRequest",
+                "Cookie": "scratchcsrftoken=a;scratchlanguage=en;",
+                "referer": "https://scratch.mit.edu",
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36"
             }
             self.username = username
 
@@ -343,15 +354,24 @@ class Scratch2Py():
                 headers=self.headers,
             )
 
+        def postComment(self, user, content, parent_id="", commentee_id=""):
+            self.headers['referer'] = "https://scratch.mit.edu/users/" + user
+            data = {
+                'content': content,
+                'parent_id': parent_id,
+                'commentee_id': commentee_id
+            }
+            return requests.post("https://scratch.mit.edu/site-api/comments/user/"+ user +"/add/",data=json.dumps(data),headers=self.headers).json()
+
     class user:
         def __init__(self, user):
             self.user = user
             self.headers = {
-            "x-csrftoken": "a",
-            "x-requested-with": "XMLHttpRequest",
-            "Cookie": "scratchcsrftoken=a;scratchlanguage=en;",
-            "referer": "https://scratch.mit.edu",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36"
+                "x-csrftoken": "a",
+                "x-requested-with": "XMLHttpRequest",
+                "Cookie": "scratchcsrftoken=a;scratchlanguage=en;",
+                "referer": "https://scratch.mit.edu",
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36"
             }
 
         def exists(self):
@@ -389,12 +409,13 @@ class Scratch2Py():
             self.username = uname
             PROJECT_ID = pid
             ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+sessionId+';',
-                    origin='https://scratch.mit.edu', enable_multithread=True)
+                       origin='https://scratch.mit.edu', enable_multithread=True)
             ws.send(json.dumps({
                 'method': 'handshake',
                 'user': self.username,
                 'project_id': str(pid)
             }) + '\n')
+
         def setCloudVar(self, variable, value):
             try:
                 ws.send(json.dumps({
@@ -407,7 +428,7 @@ class Scratch2Py():
             except BrokenPipeError:
                 logging.error('Broken Pipe Error. Connection Lost.')
                 ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+sessionId+';',
-                        origin='https://scratch.mit.edu', enable_multithread=True)
+                           origin='https://scratch.mit.edu', enable_multithread=True)
                 ws.send(json.dumps({
                     'method': 'handshake',
                     'user': self.username,
@@ -426,7 +447,7 @@ class Scratch2Py():
         def readCloudVar(self, name, limit="1000"):
             try:
                 resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
-                                str(PROJECT_ID)+"&limit="+str(limit)+"&offset=0").json()
+                                    str(PROJECT_ID)+"&limit="+str(limit)+"&offset=0").json()
                 for i in resp:
                     x = i['name']
                     if x == ('☁ ' + str(name)):
@@ -436,10 +457,11 @@ class Scratch2Py():
 
     class scratchDatabase:
         def __init__(self, pid):
+            self.chars = "abcdefghijklmnopqrstuvwxyz0123456789+-. _"
             self.id = pid
             self.username = uname
             ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+sessionId+';',
-                    origin='https://scratch.mit.edu', enable_multithread=True)
+                       origin='https://scratch.mit.edu', enable_multithread=True)
             ws.send(json.dumps({
                 'method': 'handshake',
                 'user': self.username,
@@ -449,26 +471,24 @@ class Scratch2Py():
         def __decode(self, text):
             decoded = ""
             y = 0
-            for i in range(0,len(text)//2):
-                x = chars[int(str(text[y])+str(text[int(y)+1]))-9]
+            for i in range(0, len(text)//2):
+                x = self.chars[int(str(text[y])+str(text[int(y)+1]))-9]
                 decoded = str(decoded)+str(x)
                 y += 2
             return decoded
 
         def __encode(self, text):
-            global chars
             text = text.lower()
             encoded = ""
             length = int(len(text))
-            for i in range(0,length):
+            for i in range(0, length):
                 try:
-                    x = int(chars.index(text[i])+int(9))
+                    x = int(self.chars.index(text[i])+int(9))
                     encoded = encoded + str(x)
                 except ValueError:
                     logging.error('Character not supported')
             return encoded
-    
-        
+
         def __setCloudVar(self, variable, value):
             try:
                 ws.send(json.dumps({
@@ -481,7 +501,7 @@ class Scratch2Py():
             except BrokenPipeError:
                 logging.error('Broken Pipe Error. Connection Lost.')
                 ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+sessionId+';',
-                        origin='https://scratch.mit.edu', enable_multithread=True)
+                           origin='https://scratch.mit.edu', enable_multithread=True)
                 ws.send(json.dumps({
                     'method': 'handshake',
                     'user': self.username,
@@ -498,27 +518,27 @@ class Scratch2Py():
                 }) + '\n')
 
         def __readCloudVar(self, name, limit="1000"):
-                try:
-                    resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
-                                str(self.id)+"&limit="+str(limit)+"&offset=0").json()
-                    for i in resp:
-                        x = i['name']
-                        if x == ('☁ ' + str(name)):
-                            return i['value']
-                except json.decoder.JSONDecodeError:
-                    resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
-                                str(self.id)+"&limit="+str(limit)+"&offset=0").json()
-                    for i in resp:
-                        x = i['name']
-                        if x == ('☁ ' + str(name)):
-                            return i['value']
+            try:
+                resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
+                                    str(self.id)+"&limit="+str(limit)+"&offset=0").json()
+                for i in resp:
+                    x = i['name']
+                    if x == ('☁ ' + str(name)):
+                        return i['value']
+            except json.decoder.JSONDecodeError:
+                resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
+                                    str(self.id)+"&limit="+str(limit)+"&offset=0").json()
+                for i in resp:
+                    x = i['name']
+                    if x == ('☁ ' + str(name)):
+                        return i['value']
 
         def startLoop(self):
             data = []
             while True:
                 encodedMethod = self.__readCloudVar('Method')
                 if encodedMethod != None:
-                    Method = self.decode(encodedMethod)
+                    Method = self.__decode(encodedMethod)
                 if Method == "set":
                     encodedSend = self.__readCloudVar('Send')
                     Send = str(self.__decode(encodedSend))
@@ -535,25 +555,26 @@ class Scratch2Py():
                                 data.append(intVal)
                                 logging.info('Data added.')
                                 tosend = self.__encode('Data added.')
-                                self.__setCloudVar('Return',tosend)
-                                self.__setCloudVar('Method','')
+                                self.__setCloudVar('Return', tosend)
+                                self.__setCloudVar('Method', '')
                             else:
                                 while len(data) != int(Send)-1:
                                     data.append('none')
                                 data.append(intVal)
                                 logging.info('Data added.')
                                 tosend = self.__encode('Data added.')
-                                self.__setCloudVar('Return',tosend)
-                                self.__setCloudVar('Method','')
+                                self.__setCloudVar('Return', tosend)
+                                self.__setCloudVar('Method', '')
                         else:
                             data.pop(int(Send)-1)
                             data.insert(int(Send), intVal)
                             logging.info('Data added.')
                             tosend = self.__encode('Data added.')
-                            self.__setCloudVar('Return',tosend)
-                            self.__setCloudVar('Method','')
+                            self.__setCloudVar('Return', tosend)
+                            self.__setCloudVar('Method', '')
                     else:
-                        tosend = self.__encode('Invalid input. Variable name must be int.')
+                        tosend = self.__encode(
+                            'Invalid input. Variable name must be int.')
                         self.__setCloudVar('Return', tosend)
                 if Method == "get":
                     encodedSend = self.__readCloudVar('Send')
@@ -564,9 +585,9 @@ class Scratch2Py():
                             c = int(c)+1
                     if c == len(Send) and int(Send) > 0 and int(Send) < int(len(data))+1:
                         tosend = self.__encode(data[int(Send)-1])
-                        self.__setCloudVar('Return',tosend)
+                        self.__setCloudVar('Return', tosend)
                         logging.info('Data sent.')
-                        self.__setCloudVar('Method','')
+                        self.__setCloudVar('Method', '')
                     else:
                         tosend = self.__encode('Invalid input.')
                         self.__setCloudVar('Return', tosend)
@@ -579,20 +600,21 @@ class Scratch2Py():
                             c = int(c)+1
                     if c == len(Send) and int(Send) > 0 and int(Send) < int(len(data))+1:
                         data.pop(int(Send)-1)
-                        data.insert(int(Send)-1,'none')
+                        data.insert(int(Send)-1, 'none')
                         logging.info('Variable deleted.')
                         tosend = self.__encode('Variable deleted.')
-                        self.__setCloudVar('Return',tosend)
+                        self.__setCloudVar('Return', tosend)
                     else:
                         tosend = self.__encode('Invalid input.')
-                        self.__setCloudVar('Return', tosend)                 
+                        self.__setCloudVar('Return', tosend)
 
     class turbowarpDatabase:
         def __init__(self, pid):
+            self.chars = "abcdefghijklmnopqrstuvwxyz0123456789+-. _"
             self.id = pid
             self.username = uname
             ws.connect('wss://clouddata.turbowarp.org',
-                    origin='https://turbowarp.org', enable_multithread=True)
+                       origin='https://turbowarp.org', enable_multithread=True)
             ws.send(json.dumps({
                 'method': 'handshake',
                 'user': self.username,
@@ -602,31 +624,29 @@ class Scratch2Py():
         def __decode(self, text):
             decoded = ""
             y = 0
-            for i in range(0,len(text)//2):
-                x = chars[int(str(text[y])+str(text[int(y)+1]))-9]
+            for i in range(0, len(text)//2):
+                x = self.chars[int(str(text[y])+str(text[int(y)+1]))-9]
                 decoded = str(decoded)+str(x)
                 y += 2
             return decoded
 
         def __encode(self, text):
-            global chars
             text = text.lower()
             encoded = ""
             length = int(len(text))
-            for i in range(0,length):
+            for i in range(0, length):
                 try:
-                    x = int(chars.index(text[i])+int(9))
+                    x = int(self.chars.index(text[i])+int(9))
                     encoded = encoded + str(x)
                 except ValueError:
                     logging.error('Character not supported')
             return encoded
-    
-        
+
         def __readCloudVar(self, variable):
             ws.send(json.dumps({
                 'method': 'get',
                 'project_id': str(turbowarpid)
-                }) + '\n')
+            }) + '\n')
             data = ws.recv()
             data = data.split('\n')
             result = []
@@ -635,8 +655,7 @@ class Scratch2Py():
             for i in result:
                 if i['name'] == '☁ ' + variable:
                     return i['value']
-            return 'Variable not found.'
-        
+
         def __setCloudVar(self, variable, value):
             ws.send(json.dumps({
                 'method': 'set',
@@ -644,31 +663,30 @@ class Scratch2Py():
                 'value': str(value),
                 'user': self.username,
                 'project_id': str(turbowarpid)
-                }) + '\n')
-
+            }) + '\n')
 
         def __readCloudVar(self, name, limit="1000"):
-                try:
-                    resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
-                                str(self.id)+"&limit="+str(limit)+"&offset=0").json()
-                    for i in resp:
-                        x = i['name']
-                        if x == ('☁ ' + str(name)):
-                            return i['value']
-                except json.decoder.JSONDecodeError:
-                    resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
-                                str(self.id)+"&limit="+str(limit)+"&offset=0").json()
-                    for i in resp:
-                        x = i['name']
-                        if x == ('☁ ' + str(name)):
-                            return i['value']
+            try:
+                resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
+                                    str(self.id)+"&limit="+str(limit)+"&offset=0").json()
+                for i in resp:
+                    x = i['name']
+                    if x == ('☁ ' + str(name)):
+                        return i['value']
+            except json.decoder.JSONDecodeError:
+                resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
+                                    str(self.id)+"&limit="+str(limit)+"&offset=0").json()
+                for i in resp:
+                    x = i['name']
+                    if x == ('☁ ' + str(name)):
+                        return i['value']
 
         def startLoop(self):
             data = []
             while True:
                 encodedMethod = self.__readCloudVar('Method')
                 if encodedMethod != None:
-                    Method = self.decode(encodedMethod)
+                    Method = self.__decode(encodedMethod)
                 if Method == "set":
                     encodedSend = self.__readCloudVar('Send')
                     Send = str(self.__decode(encodedSend))
@@ -685,25 +703,26 @@ class Scratch2Py():
                                 data.append(intVal)
                                 logging.info('Data added.')
                                 tosend = self.__encode('Data added.')
-                                self.__setCloudVar('Return',tosend)
-                                self.__setCloudVar('Method','')
+                                self.__setCloudVar('Return', tosend)
+                                self.__setCloudVar('Method', '')
                             else:
                                 while len(data) != int(Send)-1:
                                     data.append('none')
                                 data.append(intVal)
                                 logging.info('Data added.')
                                 tosend = self.__encode('Data added.')
-                                self.__setCloudVar('Return',tosend)
-                                self.__setCloudVar('Method','')
+                                self.__setCloudVar('Return', tosend)
+                                self.__setCloudVar('Method', '')
                         else:
                             data.pop(int(Send)-1)
                             data.insert(int(Send), intVal)
                             logging.info('Data added.')
                             tosend = self.__encode('Data added.')
-                            self.__setCloudVar('Return',tosend)
-                            self.__setCloudVar('Method','')
+                            self.__setCloudVar('Return', tosend)
+                            self.__setCloudVar('Method', '')
                     else:
-                        tosend = self.__encode('Invalid input. Variable name must be int.')
+                        tosend = self.__encode(
+                            'Invalid input. Variable name must be int.')
                         self.__setCloudVar('Return', tosend)
                 if Method == "get":
                     encodedSend = self.__readCloudVar('Send')
@@ -714,9 +733,9 @@ class Scratch2Py():
                             c = int(c)+1
                     if c == len(Send) and int(Send) > 0 and int(Send) < int(len(data))+1:
                         tosend = self.__encode(data[int(Send)-1])
-                        self.__setCloudVar('Return',tosend)
+                        self.__setCloudVar('Return', tosend)
                         logging.info('Data sent.')
-                        self.__setCloudVar('Method','')
+                        self.__setCloudVar('Method', '')
                     else:
                         tosend = self.__encode('Invalid input.')
                         self.__setCloudVar('Return', tosend)
@@ -729,23 +748,22 @@ class Scratch2Py():
                             c = int(c)+1
                     if c == len(Send) and int(Send) > 0 and int(Send) < int(len(data))+1:
                         data.pop(int(Send)-1)
-                        data.insert(int(Send)-1,'none')
+                        data.insert(int(Send)-1, 'none')
                         logging.info('Variable deleted.')
                         tosend = self.__encode('Variable deleted.')
-                        self.__setCloudVar('Return',tosend)
+                        self.__setCloudVar('Return', tosend)
                     else:
                         tosend = self.__encode('Invalid input.')
-                        self.__setCloudVar('Return', tosend)                 
+                        self.__setCloudVar('Return', tosend)
 
-    
     class turbowarpConnect:
-        def __init__(self, pid):    
+        def __init__(self, pid):
             global ws
             global turbowarpid
             self.username = uname
             turbowarpid = pid
             ws.connect('wss://clouddata.turbowarp.org',
-               origin='https://turbowarp.org', enable_multithread=True)
+                       origin='https://turbowarp.org', enable_multithread=True)
             ws.send(json.dumps({
                 'method': 'handshake',
                 'user': self.username,
@@ -759,13 +777,13 @@ class Scratch2Py():
                 'value': str(value),
                 'user': self.username,
                 'project_id': str(turbowarpid)
-                }) + '\n')
+            }) + '\n')
 
         def readTurbowarpVar(self, variable):
             ws.send(json.dumps({
                 'method': 'get',
                 'project_id': str(turbowarpid)
-                }) + '\n')
+            }) + '\n')
             data = ws.recv()
             data = data.split('\n')
             result = []
