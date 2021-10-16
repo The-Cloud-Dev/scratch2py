@@ -88,7 +88,7 @@ class Scratch2Py():
         text = text.lower()
         encoded = ""
         length = int(len(text))
-        for i in range(0, length):
+        for i in range(0,length):
             try:
                 x = int(self.chars.index(text[i])+int(11))
                 encoded = encoded + str(x)
