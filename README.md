@@ -43,15 +43,15 @@ user.getProjects()
 
 ```python
 user = s2py.userSession('username')
-
-user.followUser('otheruser')
-# Follows a user
+# Creates a userSession class.
+user.followUser()
+# Follows the user mentioned in the userSession constructor.
 user.unfollowUser('thatotheruser')
-# Unfollows a user
+# Unfollows the user mentioned in the userSession constructor.
 user.toggleCommenting()
 # Toggles commenting on your profile (On/Off)
-user.postComment('text','user','parent_id (OPTIONAL', 'commentee_id (OPTIONAL)'))
-# Posts a comment on a users profile
+user.postComment('text','parent_id (OPTIONAL', 'commentee_id (OPTIONAL)'))
+# Posts a comment on the users profile
 ```
 
 ## studioSession class
