@@ -87,7 +87,7 @@ class Scratch2Py():
         length = int(len(text))
         for i in range(0,length):
             try:
-                x = int(self.chars.index(text[i])-1)
+                x = int(self.chars.index(text[i])+1)
                 if x < 10:
                     x = str(0)+str(x)
                 encoded = encoded + str(x)
@@ -482,7 +482,7 @@ class Scratch2Py():
             length = int(len(text))
             for i in range(0,length):
                 try:
-                    x = int(self.chars.index(text[i])-1)
+                    x = int(self.chars.index(text[i])+1)
                     if x < 10:
                         x = str(0)+str(x)
                     encoded = encoded + str(x)
@@ -637,7 +637,7 @@ class Scratch2Py():
             length = int(len(text))
             for i in range(0,length):
                 try:
-                    x = int(self.chars.index(text[i])-1)
+                    x = int(self.chars.index(text[i])+1)
                     if x < 10:
                         x = str(0)+str(x)
                     encoded = encoded + str(x)
