@@ -87,10 +87,10 @@ class Scratch2Py():
         length = int(len(text))
         for i in range(0,length):
             try:
-                x = int(self.chars.index(text[i]))
+                x = int(self.chars.index(text[i])-1)
                 if x < 10:
                     x = str(0)+str(x)
-                encoded = encoded + str(int(x)+1)
+                encoded = encoded + str(x)
             except ValueError:
                 logging.error('Character not supported')
         return encoded
@@ -482,10 +482,10 @@ class Scratch2Py():
             length = int(len(text))
             for i in range(0,length):
                 try:
-                    x = int(self.chars.index(text[i]))
+                    x = int(self.chars.index(text[i])-1)
                     if x < 10:
                         x = str(0)+str(x)
-                    encoded = encoded + str(int(x)+1)
+                    encoded = encoded + str(x)
                 except ValueError:
                     logging.error('Character not supported')
             return encoded
@@ -637,10 +637,10 @@ class Scratch2Py():
             length = int(len(text))
             for i in range(0,length):
                 try:
-                    x = int(self.chars.index(text[i]))
+                    x = int(self.chars.index(text[i])-1)
                     if x < 10:
                         x = str(0)+str(x)
-                    encoded = encoded + str(int(x)+1)
+                    encoded = encoded + str(x)
                 except ValueError:
                     logging.error('Character not supported')
             return encoded
