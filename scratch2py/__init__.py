@@ -16,19 +16,16 @@ except ModuleNotFoundError as e:
 try:
     ws = websocket.WebSocket()
 except TypeError:
-    logging.info('Tye y when prompted to reinstall websocket-client')
-    os.system('pip uninstall websocket-client')
-    os.system('pip install websocket-client')
+    os.system('pip install --force-reinstall websocket-client')
 logging.basicConfig(filename='s2py.log', level=logging.INFO)
 
 
 class Scratch2Py():
     def __init__(self, username, password):
-        self.chars = "abcdefghijklmnopqrstuvwxyz0123456789+-. _"
+        self.chars = """AabBCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789 -_`~!@#$%^&*()+=[];:'"\|,.<>/?}{"""
         global uname
         uname = username
         self.username = username
-        # This is never used anywhere else...
         self.password = password
         self.headers = {
             "x-csrftoken": "a",
@@ -77,25 +74,26 @@ class Scratch2Py():
 
     def decode(self, text):
         decoded = ""
+        text = str(text)
         y = 0
         for i in range(0, len(text)//2):
-            x = self.chars[int(str(text[y])+str(text[int(y)+1]))-11]
+            x = self.chars[int(str(text[y])+str(text[int(y)+1]))-1]
             decoded = str(decoded)+str(x)
             y += 2
         return decoded
 
     def encode(self, text):
-        text = text.lower()
         encoded = ""
         length = int(len(text))
         for i in range(0,length):
             try:
-                x = int(self.chars.index(text[i])+int(11))
-                encoded = encoded + str(x)
+                x = int(self.chars.index(text[i]))
+                if x < 10:
+                    x = str(0)+str(x)
+                encoded = encoded + str(int(x)+1)
             except ValueError:
                 logging.error('Character not supported')
         return encoded
-
     class project:
         def __init__(self, id):
             self.id = id
@@ -321,27 +319,28 @@ class Scratch2Py():
                 "referer": "https://scratch.mit.edu",
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36"
             }
-            self.username = username
+            self.username = uname
+            self.uname2 = username
 
-        def followUser(self, username):
+        def followUser(self):
             self.headers['referer'] = "https://scratch.mit.edu/users/" + \
                 str(self.username)+"/"
             return requests.put(
                 "https://scratch.mit.edu/site-api/users/followers/"
                 + self.username
                 + "/add/?usernames="
-                + username,
+                + self.uname2,
                 headers=self.headers,
             ).json()
 
-        def unfollowUser(self, username):
+        def unfollowUser(self):
             self.headers['referer'] = "https://scratch.mit.edu/users/" + \
                 str(self.username)+"/"
             return requests.put(
                 "https://scratch.mit.edu/site-api/users/followers/"
                 + self.username
                 + "/remove/?usernames="
-                + username,
+                + self.uname2,
                 headers=self.headers,
             ).json()
 
@@ -354,14 +353,14 @@ class Scratch2Py():
                 headers=self.headers,
             )
 
-        def postComment(self, user, content, parent_id="", commentee_id=""):
-            self.headers['referer'] = "https://scratch.mit.edu/users/" + user
+        def postComment(self,content, parent_id="", commentee_id=""):
+            self.headers['referer'] = "https://scratch.mit.edu/users/" + self.uname2
             data = {
                 'content': content,
                 'parent_id': parent_id,
                 'commentee_id': commentee_id
             }
-            return requests.post("https://scratch.mit.edu/site-api/comments/user/"+ user +"/add/",data=json.dumps(data),headers=self.headers).json()
+            return requests.post("https://scratch.mit.edu/site-api/comments/user/"+ self.uname2 +"/add/",data=json.dumps(data),headers=self.headers).json()
 
     class user:
         def __init__(self, user):
@@ -457,7 +456,7 @@ class Scratch2Py():
 
     class scratchDatabase:
         def __init__(self, pid):
-            self.chars = "abcdefghijklmnopqrstuvwxyz0123456789+-. _"
+            self.chars = """AabBCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789 -_`~!@#$%^&*()+=[];:'"\|,.<>/?}{"""
             self.id = pid
             self.username = uname
             ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+sessionId+';',
@@ -470,21 +469,23 @@ class Scratch2Py():
 
         def __decode(self, text):
             decoded = ""
+            text = str(text)
             y = 0
             for i in range(0, len(text)//2):
-                x = self.chars[int(str(text[y])+str(text[int(y)+1]))-11]
+                x = self.chars[int(str(text[y])+str(text[int(y)+1]))-1]
                 decoded = str(decoded)+str(x)
                 y += 2
             return decoded
 
         def __encode(self, text):
-            text = text.lower()
             encoded = ""
             length = int(len(text))
-            for i in range(0, length):
+            for i in range(0,length):
                 try:
-                    x = int(self.chars.index(text[i])+int(11))
-                    encoded = encoded + str(x)
+                    x = int(self.chars.index(text[i]))
+                    if x < 10:
+                        x = str(0)+str(x)
+                    encoded = encoded + str(int(x)+1)
                 except ValueError:
                     logging.error('Character not supported')
             return encoded
@@ -610,7 +611,7 @@ class Scratch2Py():
 
     class turbowarpDatabase:
         def __init__(self, pid):
-            self.chars = "abcdefghijklmnopqrstuvwxyz0123456789+-. _"
+            self.chars = """AabBCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789 -_`~!@#$%^&*()+=[];:'"\|,.<>/?}{"""
             self.id = pid
             self.username = uname
             ws.connect('wss://clouddata.turbowarp.org',
@@ -623,21 +624,23 @@ class Scratch2Py():
 
         def __decode(self, text):
             decoded = ""
+            text = str(text)
             y = 0
             for i in range(0, len(text)//2):
-                x = self.chars[int(str(text[y])+str(text[int(y)+1]))-11]
+                x = self.chars[int(str(text[y])+str(text[int(y)+1]))-1]
                 decoded = str(decoded)+str(x)
                 y += 2
             return decoded
 
         def __encode(self, text):
-            text = text.lower()
             encoded = ""
             length = int(len(text))
-            for i in range(0, length):
+            for i in range(0,length):
                 try:
-                    x = int(self.chars.index(text[i])+int(11))
-                    encoded = encoded + str(x)
+                    x = int(self.chars.index(text[i]))
+                    if x < 10:
+                        x = str(0)+str(x)
+                    encoded = encoded + str(int(x)+1)
                 except ValueError:
                     logging.error('Character not supported')
             return encoded
