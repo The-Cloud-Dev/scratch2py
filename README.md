@@ -84,6 +84,8 @@ project.getComments()
 # Gets the comments of a project
 project.getInfo()
 # Gets the info of a project
+project.fetchAssets(type='img')
+# Fetches assets of a project. Type is img by default, can be img or snd. snd will fetch sound files from the project.
 ```
 
 ## projectSession class
