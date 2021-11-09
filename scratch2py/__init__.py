@@ -1,13 +1,11 @@
 try:
-    import requests
     import re
     import os
     import json
     import time
     import logging
     import sys
-    import json
-    import os
+    import requests
     import websocket
 except ModuleNotFoundError as e:
     os.chdir(os.getcwd())
