@@ -10,7 +10,6 @@ try:
     import os
     import websocket
 except ModuleNotFoundError as e:
-    logging.info(e+'; Installing needed modules...')
     os.chdir(os.getcwd())
     os.system('pip install -r requirements.txt')
 try:
