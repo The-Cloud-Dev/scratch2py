@@ -12,7 +12,7 @@ except ModuleNotFoundError as e:
     os.system('pip install -r requirements.txt')
 try:
     ws = websocket.WebSocket()
-except TypeError:
+except:
     os.system('pip install --force-reinstall websocket-client')
 logging.basicConfig(filename='s2py.log', level=logging.INFO)
 
