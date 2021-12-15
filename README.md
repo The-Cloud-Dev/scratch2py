@@ -106,6 +106,8 @@ project.love()
 # Loves a project
 project.unlove()
 # Unloves a project
+project.remix()
+# Remixes a project
 ```
 
 ## scratchConnect Class
