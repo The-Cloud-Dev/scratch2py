@@ -1,3 +1,6 @@
+from re import S
+
+
 try:
     import re
     import os
@@ -82,7 +85,7 @@ class Scratch2Py():
     def encode(self, text):
         encoded = ""
         length = int(len(text))
-        for i in range(0,length):
+        for i in range(0, length):
             try:
                 x = int(self.chars.index(text[i])+1)
                 if x < 10:
@@ -91,6 +94,7 @@ class Scratch2Py():
             except ValueError:
                 logging.error('Character not supported')
         return encoded
+
     class project:
         def __init__(self, id):
             self.id = id
@@ -307,6 +311,11 @@ class Scratch2Py():
                 headers=self.headers,
             ).json()
 
+        def remix(self):
+            self.headers['referer'] = "https://scratch.mit.edu/projects/" + \
+                str(self.pid)
+            return requests.post("https://projects.scratch.mit.edu/?is_remix=1&original_id="+str(self.pid)+"&title=Scratch%20Project").json()
+
     class userSession:
         def __init__(self, username):
             self.headers = {
@@ -350,14 +359,14 @@ class Scratch2Py():
                 headers=self.headers,
             )
 
-        def postComment(self,content, parent_id="", commentee_id=""):
+        def postComment(self, content, parent_id="", commentee_id=""):
             self.headers['referer'] = "https://scratch.mit.edu/users/" + self.uname2
             data = {
                 'content': content,
                 'parent_id': parent_id,
                 'commentee_id': commentee_id
             }
-            return requests.post("https://scratch.mit.edu/site-api/comments/user/"+ self.uname2 +"/add/",data=json.dumps(data),headers=self.headers).json()
+            return requests.post("https://scratch.mit.edu/site-api/comments/user/" + self.uname2 + "/add/", data=json.dumps(data), headers=self.headers).json()
 
     class user:
         def __init__(self, user):
@@ -477,7 +486,7 @@ class Scratch2Py():
         def __encode(self, text):
             encoded = ""
             length = int(len(text))
-            for i in range(0,length):
+            for i in range(0, length):
                 try:
                     x = int(self.chars.index(text[i])+1)
                     if x < 10:
@@ -632,7 +641,7 @@ class Scratch2Py():
         def __encode(self, text):
             encoded = ""
             length = int(len(text))
-            for i in range(0,length):
+            for i in range(0, length):
                 try:
                     x = int(self.chars.index(text[i])+1)
                     if x < 10:
