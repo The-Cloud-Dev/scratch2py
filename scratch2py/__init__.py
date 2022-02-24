@@ -1,29 +1,27 @@
-from re import S
+'''
+scratch2py
+~~~~~~~~~~
 
+Scratch2py or S2py is an easy-to-use, versatile tool to communicate with the Scratch API and do other things
 
-try:
-    import re
-    import os
-    import json
-    import time
-    import logging
-    import sys
-    import requests
-    import websocket
-except ModuleNotFoundError as e:
-    os.chdir(os.getcwd())
-    os.system('pip install -r requirements.txt')
-try:
-    ws = websocket.WebSocket()
-except:
-    os.system('pip install --force-reinstall websocket-client')
-logging.basicConfig(filename='s2py.log', level=logging.INFO)
-try:
-    os.system('pip install --upgrade scratch2py')
-except:
-    print('')
+   >>> from scratch2py import Scratch2Py
+   >>> s2py = Scratch2Py('foobar', 'spameggs')
+   >>> user = s2py.user('Scratchteam')
+   >>> user.exists()
+   True
+'''
+
+import websocket
+import requests
+import logging
+import json
+import re
+
+ws = websocket.WebSocket()
+
 class Scratch2Py():
-    def __init__(self, username, password):
+    '''Initialize a new Scratch2Py object'''
+    def __init__(self, username: str, password: str) -> None:
         self.chars = """AabBCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789 -_`~!@#$%^&*()+=[];:'"\|,.<>/?}{"""
         global uname
         uname = username
@@ -60,7 +58,7 @@ class Scratch2Py():
             ).group(1)
 
         except AttributeError:
-            sys.exit('Error: Invalid credentials. Authentication failed.')
+            raise Exception('Error: Invalid credentials. Authentication failed.')
         else:
             self.headers = {
                 "x-csrftoken": self.csrftoken,
@@ -75,6 +73,7 @@ class Scratch2Py():
             }
 
     def decode(self, text):
+        '''Encode a value.'''
         decoded = ""
         text = str(text)
         y = 0
@@ -85,6 +84,7 @@ class Scratch2Py():
         return decoded
 
     def encode(self, text):
+        '''Decode a value.'''
         encoded = ""
         length = int(len(text))
         for i in range(0, length):
@@ -98,36 +98,19 @@ class Scratch2Py():
         return encoded
 
     class project:
-        def __init__(self, id):
+        '''Get project related information'''
+        def __init__(self, id: int) -> None:
             self.id = id
 
-        def getStats(self, stat):
-            if stat == "loves" or stat == "faves" or stat == "views" or stat == "remixes":
-                if stat == "loves":
-                    r = requests.get(
-                        "https://api.scratch.mit.edu/projects/"+str(self.id))
-                    data = r.json()
-                    return data['stats']['loves']
-                else:
-                    if stat == "faves":
-                        r = requests.get(
-                            "https://api.scratch.mit.edu/projects/"+str(self.id))
-                        data = r.json()
-                        return data['stats']['favorites']
-                    else:
-                        if stat == "remixes":
-                            r = requests.get(
-                                "https://api.scratch.mit.edu/projects/"+str(self.id))
-                            data = r.json()
-                            return data['stats']['remixes']
-                        else:
-                            if stat == "views":
-                                r = requests.get(
-                                    "https://api.scratch.mit.edu/projects/"+str(self.id))
-                                data = r.json()
-                                return data['stats']['views']
+        def getStats(self) -> dict:
+            '''Fetch statistics for a project'''
+            r = requests.get(
+                "https://api.scratch.mit.edu/projects/"+str(self.id))
+            data = r.json()
+            return data['stats']
 
-        def getComments(self):
+        def getComments(self) -> 'list[dict]':
+            '''Fetch comments for a project'''
             uname = requests.get(
                 "https://api.scratch.mit.edu/projects/"+str(self.id)).json()
             if uname != {"code": "NotFound", "message": ""}:
@@ -149,14 +132,16 @@ class Scratch2Py():
                             str('Username: '+str(uname))+(str(', Content: ')+str(x)))
                     return data
 
-        def getInfo(self):
+        def getInfo(self) -> dict:
+            '''Fetch the entire project information'''
             r = requests.get(
                 'https://api.scratch.mit.edu/projects/'+str(self.id)
             ).json()
             return r
 
-        def fetchAssets(self, type='img'):
+        def getAssets(self, type='img') -> 'list[str]':
             '''
+            Fetch project asset URLs such as their costumes and sounds
             You may have problems with fetching assets since some projects may not have any assets, or are fetched as binary code and not JSON
             '''
 
@@ -175,7 +160,8 @@ class Scratch2Py():
             return assets
 
     class studioSession:
-        def __init__(self, sid):
+        '''Get studio related information'''
+        def __init__(self, sid: int) -> None:
             self.headers = {
                 "x-csrftoken": "a",
                 "x-requested-with": "XMLHttpRequest",
@@ -185,18 +171,21 @@ class Scratch2Py():
             }
             self.sid = sid
 
-        def inviteCurator(self, user):
+        def inviteCurator(self, user: str) -> None:
+            '''Invite a curator to a studio'''
             self.headers["referer"] = (
                 "https://scratch.mit.edu/studios/" + str(self.sid) + "/curators/")
             requests.put("https://scratch.mit.edu/site-api/users/curators-in/" +
                          str(self.sid) + "/invite_curator/?usernames=" + user, headers=self.headers)
 
-        def addStudioProject(self, pid):
+        def addStudioProject(self, pid: int):
+            '''Add a project to a studio'''
             self.headers['referer'] = "https://scratch.mit.edu/projects/" + \
                 str(pid)
             return requests.post("https://api.scratch.mit.edu/studios/"+str(self.sid)+"/project/"+str(pid), headers=self.headers)
 
-        def postComment(self, content, parent_id="", commentee_id=""):
+        def postComment(self, content: str, parent_id: str="", commentee_id: str=""):
+            '''Post a comment on a studio'''
             self.headers['referer'] = (
                 "https://scratch.mit.edu/studios/" +
                 str(self.sid) + "/comments/"
@@ -214,7 +203,8 @@ class Scratch2Py():
                 data=json.dumps(data),
             )
 
-        def getComments(self):
+        def getComments(self) -> 'list[str]':
+            '''Fetch studio comments'''
             r = requests.get(
                 "https://api.scratch.mit.edu/studios/"+str(self.sid)+"/comments")
             data = r.json()
@@ -222,9 +212,10 @@ class Scratch2Py():
             for i in data:
                 x = i['content']
                 comments.append(x)
-            return json.dumps(comments)
+            return comments
 
-        def follow(self):
+        def follow(self) -> dict:
+            '''Follow a studio'''
             self.headers['referer'] = "https://scratch.mit.edu/studios/" + \
                 str(self.sid)
             return requests.put(
@@ -234,8 +225,9 @@ class Scratch2Py():
                 + self.username,
                 headers=self.headers,
             ).json()
-
-        def unfollow(self):
+    
+        def unfollow(self) -> dict:
+            '''Unfollow a studio'''
             self.headers['referer'] = "https://scratch.mit.edu/studios/" + \
                 str(self.sid)
             return requests.put(
@@ -247,7 +239,8 @@ class Scratch2Py():
             ).json()
 
     class projectSession:
-        def __init__(self, pid):
+        '''Do project related things as a "user"'''
+        def __init__(self, pid: int) -> None:
             self.headers = {
                 "x-csrftoken": "a",
                 "x-requested-with": "XMLHttpRequest",
@@ -258,18 +251,21 @@ class Scratch2Py():
             self.pid = pid
 
         def share(self):
+            '''Share a project'''
             self.headers["referer"] = (
                 "https://scratch.mit.edu/projects/"+str(self.pid)
             )
             return requests.put("https://api.scratch.mit.edu/proxy/projects/"+str(self.pid)+"/share", headers=self.headers)
 
         def unshare(self):
+            '''Unshare a project'''
             self.headers["referer"] = (
                 "https://scratch.mit.edu/projects/"+str(self.pid)
             )
             return requests.put("https://api.scratch.mit.edu/proxy/projects/"+str(self.pid)+"/unshare", headers=self.headers)
 
         def favorite(self):
+            '''Favorite (star) a project'''
             self.headers['referer'] = "https://scratch.mit.edu/projects/" + \
                 str(self.pid)
             return requests.post(
@@ -281,6 +277,7 @@ class Scratch2Py():
             ).json()
 
         def unfavorite(self):
+            '''Unfavorite (star) a project'''
             self.headers['referer'] = "https://scratch.mit.edu/projects/" + \
                 str(self.pid)
             return requests.delete(
@@ -292,6 +289,7 @@ class Scratch2Py():
             ).json()
 
         def love(self):
+            '''Love (heart) a project'''
             self.headers['referer'] = "https://scratch.mit.edu/projects/" + \
                 str(self.pid)
             return requests.post(
@@ -303,6 +301,7 @@ class Scratch2Py():
             ).json()
 
         def unlove(self):
+            '''Unlove (heart) a project'''
             self.headers['referer'] = "https://scratch.mit.edu/projects/" + \
                 str(self.pid)
             return requests.delete(
@@ -314,12 +313,14 @@ class Scratch2Py():
             ).json()
 
         def remix(self):
+            '''Remix a project'''
             self.headers['referer'] = "https://scratch.mit.edu/projects/" + \
                 str(self.pid)
             return requests.post("https://projects.scratch.mit.edu/?is_remix=1&original_id="+str(self.pid)+"&title=Scratch%20Project").json()
 
     class userSession:
-        def __init__(self, username):
+        '''Do profile related things as a "user"'''
+        def __init__(self, username: str) -> None:
             self.headers = {
                 "x-csrftoken": "a",
                 "x-requested-with": "XMLHttpRequest",
@@ -331,6 +332,7 @@ class Scratch2Py():
             self.uname2 = username
 
         def followUser(self):
+            '''Follow a user'''
             self.headers['referer'] = "https://scratch.mit.edu/users/" + \
                 str(self.username)+"/"
             return requests.put(
@@ -342,6 +344,7 @@ class Scratch2Py():
             ).json()
 
         def unfollowUser(self):
+            '''Unfollow a user'''
             self.headers['referer'] = "https://scratch.mit.edu/users/" + \
                 str(self.username)+"/"
             return requests.put(
@@ -353,6 +356,7 @@ class Scratch2Py():
             ).json()
 
         def toggleCommenting(self):
+            '''Toggle a user profile's comment section'''
             self.headers['referer'] = "https://scratch.mit.edu/users/" + \
                 str(self.username)
             return requests.post(
@@ -361,7 +365,8 @@ class Scratch2Py():
                 headers=self.headers,
             )
 
-        def postComment(self, content, parent_id="", commentee_id=""):
+        def postComment(self, content: str, parent_id: str="", commentee_id: str=""):
+            '''Post a comment on a user profile'''
             self.headers['referer'] = "https://scratch.mit.edu/users/" + self.uname2
             data = {
                 'content': content,
@@ -371,7 +376,8 @@ class Scratch2Py():
             return requests.post("https://scratch.mit.edu/site-api/comments/user/" + self.uname2 + "/add/", data=json.dumps(data), headers=self.headers).json()
 
     class user:
-        def __init__(self, user):
+        '''Do profile related things'''
+        def __init__(self, user: str) -> None:
             self.user = user
             self.headers = {
                 "x-csrftoken": "a",
@@ -381,36 +387,42 @@ class Scratch2Py():
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36"
             }
 
-        def exists(self):
+        def exists(self) -> bool:
+            '''Check if a user exists. Returns true or false'''
             return requests.get("https://api.scratch.mit.edu/accounts/checkusername/"+str(self.user)).json() == {"username": self.user, "msg": "username exists"}
 
         def getMessagesCount(self):
+            '''Get the number of messages someone posted'''
             self.headers['referer'] = "https://scratch.mit.edu"
             return requests.get("https://api.scratch.mit.edu/users/"+str(self.user)+"/messages/count").json()['count']
 
-        def getMessages(self):
+        def getMessages(self) -> dict:
+            '''Get the messages someone sent'''
             return requests.get("https://api.scratch.mit.edu/users/"+str(self.user)+"/messages" + "/", headers=self.headers).json()
 
-        def getStatus(self):
+        def getStatus(self) -> str:
+            '''Get the "About Me" section of a user profile'''
             return requests.get("https://api.scratch.mit.edu/users/"+str(self.user)).json()['profile']['status']
 
-        def getBio(self):
+        def getBio(self) -> str:
+            '''Get the 'What I'm Working On' section of a user profile'''
             return requests.get("https://api.scratch.mit.edu/users/"+str(self.user)).json()['profile']['bio']
 
-        def getProjects(self):
+        def getProjects(self) -> 'dict[str, list]':
             r = requests.get(
                 "https://api.scratch.mit.edu/users/"+str(self.user)+"/projects")
             data = r.json()
-            titles = []
+            titles = {}
             for i in data:
                 x = i['title']
                 y = i['id']
-                titles.append('ID: ' + str(y))
-                titles.append('Title: ' + str(x))
+                z = i['history']['shared']
+                titles[x] = [y, z]
             return titles
 
     class scratchConnect:
-        def __init__(self, pid):
+        '''Connect to a project to read and write cloud variables'''
+        def __init__(self, pid: int):
             global ws
             global PROJECT_ID
             self.username = uname
@@ -423,7 +435,8 @@ class Scratch2Py():
                 'project_id': str(pid)
             }) + '\n')
 
-        def setCloudVar(self, variable, value):
+        def setCloudVar(self, variable: str, value: str) -> None:
+            '''Set the value of a cloud variable (☁ is not needed)'''
             try:
                 ws.send(json.dumps({
                     'method': 'set',
@@ -451,7 +464,8 @@ class Scratch2Py():
                     'project_id': str(PROJECT_ID)
                 }) + '\n')
 
-        def readCloudVar(self, name, limit="1000"):
+        def readCloudVar(self, name: str, limit: str="1000") -> str:
+            '''Read the value of a cloud variable (an exception may be raised if reading fails)'''
             try:
                 resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
                                     str(PROJECT_ID)+"&limit="+str(limit)+"&offset=0").json()
@@ -459,11 +473,12 @@ class Scratch2Py():
                     x = i['name']
                     if x == ('☁ ' + str(name)):
                         return i['value']
-            except:
-                return 'Sorry, there was an error.'
+            except Exception:
+                raise Exception('Cloud variable could not be read.')
 
     class scratchDatabase:
-        def __init__(self, pid):
+        '''Create a new database that will detect messages on a certain project ID'''
+        def __init__(self, pid: int) -> None:
             self.chars = """AabBCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789 -_`~!@#$%^&*()+=[];:'"\|,.<>/?}{"""
             self.id = pid
             self.username = uname
@@ -543,6 +558,7 @@ class Scratch2Py():
                         return i['value']
 
         def startLoop(self):
+            '''Start a new loop for the database'''
             data = []
             while True:
                 encodedMethod = self.__readCloudVar('Method')
