@@ -5,10 +5,11 @@ Based of [scratchclient](https://github.com/CubeyTheCube/scratchclient) by [Raih
 
 ## Installation
 
-Run this command in your terminal as ONE command.
+Run this in your terminal
 
 ```bash
-pip install scratch2py && pip install --force-reinstall websocket-client
+pip install scratch2py 
+pip install --force-reinstall websocket-client # may be required
 ```
 
 ## Usage
@@ -78,13 +79,13 @@ studio.unfollow()
 ```python
 project = s2py.project('id')
 
-project.getStats('loves/faves/remixes/views')
-# Gets the stats of a project
+project.getStats()
+# Gets the stats of a project. Returns statistics as JSON
 project.getComments()
 # Gets the comments of a project
 project.getInfo()
 # Gets the info of a project
-project.fetchAssets(type='img')
+project.fetchAssets(type='img/snd')
 # Fetches assets of a project. Type is img by default, can be img or snd. snd will fetch sound files from the project.
 ```
 
