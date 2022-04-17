@@ -1,9 +1,5 @@
 '''
-scratch2py
-~~~~~~~~~~
-
-Scratch2py or S2py is an easy-to-use, versatile tool to communicate with the Scratch API and do other things
-
+Scratch2py or s2py is an easy-to-use, versatile tool to communicate with the Scratch API and do other things
    >>> from scratch2py import Scratch2Py
    >>> s2py = Scratch2Py('foobar', 'spameggs')
    >>> user = s2py.user('Scratchteam')
@@ -11,6 +7,7 @@ Scratch2py or S2py is an easy-to-use, versatile tool to communicate with the Scr
    True
 '''
 
+from wsgiref import headers
 import websocket
 import requests
 import logging
@@ -19,8 +16,10 @@ import re
 
 ws = websocket.WebSocket()
 
+
 class Scratch2Py():
     '''Initialize a new Scratch2Py object'''
+
     def __init__(self, username: str, password: str) -> None:
         self.chars = """AabBCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789 -_`~!@#$%^&*()+=[];:'"\|,.<>/?}{"""
         global uname
@@ -58,7 +57,8 @@ class Scratch2Py():
             ).group(1)
 
         except AttributeError:
-            raise Exception('Error: Invalid credentials. Authentication failed.')
+            raise Exception(
+                'Error: Invalid credentials. Authentication failed.')
         else:
             self.headers = {
                 "x-csrftoken": self.csrftoken,
@@ -99,6 +99,7 @@ class Scratch2Py():
 
     class project:
         '''Get project related information'''
+
         def __init__(self, id: int) -> None:
             self.id = id
 
@@ -161,6 +162,7 @@ class Scratch2Py():
 
     class studioSession:
         '''Get studio related information'''
+
         def __init__(self, sid: int) -> None:
             self.headers = {
                 "x-csrftoken": "a",
@@ -184,7 +186,7 @@ class Scratch2Py():
                 str(pid)
             return requests.post("https://api.scratch.mit.edu/studios/"+str(self.sid)+"/project/"+str(pid), headers=self.headers)
 
-        def postComment(self, content: str, parent_id: str="", commentee_id: str=""):
+        def postComment(self, content: str, parent_id: str = "", commentee_id: str = ""):
             '''Post a comment on a studio'''
             self.headers['referer'] = (
                 "https://scratch.mit.edu/studios/" +
@@ -225,7 +227,7 @@ class Scratch2Py():
                 + self.username,
                 headers=self.headers,
             ).json()
-    
+
         def unfollow(self) -> dict:
             '''Unfollow a studio'''
             self.headers['referer'] = "https://scratch.mit.edu/studios/" + \
@@ -240,6 +242,7 @@ class Scratch2Py():
 
     class projectSession:
         '''Do project related things as a "user"'''
+
         def __init__(self, pid: int) -> None:
             self.headers = {
                 "x-csrftoken": "a",
@@ -320,6 +323,7 @@ class Scratch2Py():
 
     class userSession:
         '''Do profile related things as a "user"'''
+
         def __init__(self, username: str) -> None:
             self.headers = {
                 "x-csrftoken": "a",
@@ -365,7 +369,7 @@ class Scratch2Py():
                 headers=self.headers,
             )
 
-        def postComment(self, content: str, parent_id: str="", commentee_id: str=""):
+        def postComment(self, content: str, parent_id: str = "", commentee_id: str = ""):
             '''Post a comment on a user profile'''
             self.headers['referer'] = "https://scratch.mit.edu/users/" + self.uname2
             data = {
@@ -377,6 +381,7 @@ class Scratch2Py():
 
     class user:
         '''Do profile related things'''
+
         def __init__(self, user: str) -> None:
             self.user = user
             self.headers = {
@@ -394,7 +399,7 @@ class Scratch2Py():
         def getMessagesCount(self):
             '''Get the number of messages someone posted'''
             self.headers['referer'] = "https://scratch.mit.edu"
-            return requests.get("https://api.scratch.mit.edu/users/"+str(self.user)+"/messages/count").json()['count']
+            return requests.get("https://api.scratch.mit.edu/users/"+str(self.user)+"/messages/count", headers=self.headers).json()['count']
 
         def getMessages(self) -> dict:
             '''Get the messages someone sent'''
@@ -422,6 +427,7 @@ class Scratch2Py():
 
     class scratchConnect:
         '''Connect to a project to read and write cloud variables'''
+
         def __init__(self, pid: int):
             global ws
             global PROJECT_ID
@@ -464,7 +470,7 @@ class Scratch2Py():
                     'project_id': str(PROJECT_ID)
                 }) + '\n')
 
-        def readCloudVar(self, name: str, limit: str="1000") -> str:
+        def readCloudVar(self, name: str, limit: str = "1000") -> str:
             '''Read the value of a cloud variable (an exception may be raised if reading fails)'''
             try:
                 resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
@@ -478,6 +484,7 @@ class Scratch2Py():
 
     class scratchDatabase:
         '''Create a new database that will detect messages on a certain project ID'''
+
         def __init__(self, pid: int) -> None:
             self.chars = """AabBCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789 -_`~!@#$%^&*()+=[];:'"\|,.<>/?}{"""
             self.id = pid
