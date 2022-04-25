@@ -125,15 +125,7 @@ cloudproject.readCloudVar('variable name', 'Limit(optional)')
 ```
 
 ## turbowarpConnect class
-
-```python
-turbowarp = s2py.turbowarpConnect('project_id')
-#  Creates a new connection to a Turbowarp project.
-turbowarp.setCloudVar('CloudVar', 'Value')
-# Sets a value to a cloud variable. Don't add the cloud symbol.
-turbowarp.readTurbowarpVar('variable name')
-# Gets the value of a cloud variable. 
-```
+This feature is currently disabled due to [some errors which can be found in issue #22](https://github.com/The-Cloud-Dev/scratch2py/issues/22). I'll be reworked soon.
 
 ## cloudDatabase class
 
