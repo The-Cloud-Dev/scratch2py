@@ -7,7 +7,7 @@ Scratch2py or s2py is an easy-to-use, versatile tool to communicate with the Scr
    True
 '''
 
-from wsgiref import headers
+from lib2to3.pgen2 import token
 import websocket
 import requests
 import logging
@@ -43,8 +43,6 @@ class Scratch2Py():
             self.sessionId = re.search(
                 '\"(.*)\"', request.headers['Set-Cookie']).group()
             self.token = request.json()[0]["token"]
-            global sessionId
-            sessionId = self.sessionId
             headers = {
                 "x-requested-with": "XMLHttpRequest",
                 "Cookie": "scratchlanguage=en;permissions=%7B%7D;",
@@ -55,6 +53,12 @@ class Scratch2Py():
             self.csrftoken = re.search(
                 "scratchcsrftoken=(.*?);", request.headers["Set-Cookie"]
             ).group(1)
+            global sessionId
+            sessionId = self.sessionId
+            global csrftoken
+            csrftoken = self.csrftoken
+            global token
+            token = self.token
 
         except AttributeError:
             raise Exception(
@@ -165,9 +169,10 @@ class Scratch2Py():
 
         def __init__(self, sid: int) -> None:
             self.headers = {
-                "x-csrftoken": "a",
+                "x-csrftoken": csrftoken,
+                "X-token": token,
                 "x-requested-with": "XMLHttpRequest",
-                "Cookie": "scratchcsrftoken=a;scratchlanguage=en;",
+                "Cookie": "scratchcsrftoken="+csrftoken+"scratchsessionSid;="+sessionId+"scratchlanguage=en;",
                 "referer": "https://scratch.mit.edu",
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36"
             }
@@ -326,9 +331,10 @@ class Scratch2Py():
 
         def __init__(self, username: str) -> None:
             self.headers = {
-                "x-csrftoken": "a",
+                "x-csrftoken": csrftoken,
+                "X-token": token,
                 "x-requested-with": "XMLHttpRequest",
-                "Cookie": "scratchcsrftoken=a;scratchlanguage=en;",
+                "Cookie": "scratchcsrftoken="+str(csrftoken)+";scratchlanguage=en;scratchsessionSid="+str(sessionId)+";",
                 "referer": "https://scratch.mit.edu",
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36"
             }
@@ -372,6 +378,7 @@ class Scratch2Py():
         def postComment(self, content: str, parent_id: str = "", commentee_id: str = ""):
             '''Post a comment on a user profile'''
             self.headers['referer'] = "https://scratch.mit.edu/users/" + self.uname2
+            print(self.headers   )
             data = {
                 'content': content,
                 'parent_id': parent_id,
@@ -385,9 +392,9 @@ class Scratch2Py():
         def __init__(self, user: str) -> None:
             self.user = user
             self.headers = {
-                "x-csrftoken": "a",
+                "x-csrftoken": csrftoken,
                 "x-requested-with": "XMLHttpRequest",
-                "Cookie": "scratchcsrftoken=a;scratchlanguage=en;",
+                "Cookie": "scratchcsrftoken="+str(csrftoken)+"'scratchsessionSid="+str(sessionId)+";scratchlanguage=en;",
                 "referer": "https://scratch.mit.edu",
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36"
             }
@@ -450,7 +457,7 @@ class Scratch2Py():
                     'value': str(value),
                     'user': self.username,
                     'project_id': str(PROJECT_ID)
-                }) + '\n')
+                }) + '\n')  
             except BrokenPipeError:
                 logging.error('Broken Pipe Error. Connection Lost.')
                 ws.connect('wss://clouddata.scratch.mit.edu', cookie='scratchsessionsid='+sessionId+';',
@@ -470,7 +477,7 @@ class Scratch2Py():
                     'project_id': str(PROJECT_ID)
                 }) + '\n')
 
-        def readCloudVar(self, name: str, limit: str = "1000") -> str:
+        def readCloudVar(self, name: str, limit: str = "1000") -> str: 
             '''Read the value of a cloud variable (an exception may be raised if reading fails)'''
             try:
                 resp = requests.get("https://clouddata.scratch.mit.edu/logs?projectid=" +
@@ -639,3 +646,43 @@ class Scratch2Py():
                     else:
                         tosend = self.__encode('Invalid input.')
                         self.__setCloudVar('Return', tosend)
+    class turbowarpConnect:
+        def __init__(self, pid: int):
+            websocket.create_connection("wss://clouddata.turbowarp.org")
+            self.pid = pid
+        def _send_packet(self, data):
+            websocket.send(json.dumps(data))
+        def readCloudVar(self,var):
+            try:
+                variable = "☁ " + str(variable)
+                self.setCloudVar('s2pyreadvar','0')
+
+                result = []
+                for i in self._cloudata:
+                    try:
+                        result.append(json.loads(i))
+                    except Exception: pass
+                if result == []:
+                    return None
+                else:
+                    for i in result:
+                        if i['name'] == variable:
+                            return i['value']
+                    return None
+            except Exception:
+                print('Fetch error.')
+            
+        def setCloudVar(self, variable, value):
+            self._send_packet(
+                {
+                    "method": "set",
+                    "name": "☁ " + variable,
+                    "value": str(value),
+                    "user": self.username,
+                    "project_id": self.pid
+                }
+            )
+            self._cloudata = websocket.recv().split('\n')
+
+
+        
